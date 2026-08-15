@@ -1,0 +1,429 @@
+@extends('layouts.master')
+
+@section('title') Dashboard SAV @endsection
+
+@section('content')
+
+@push('css')
+<style>
+    .clickable-row {
+        cursor: pointer !important;
+    }
+    .clickable-row:hover {
+        background-color: #f1f3f5 !important;
+    }
+</style>
+@endpush
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+            <h4 class="mb-sm-0 font-size-18">Tableau de Bord SAV</h4>
+            <div>
+                <a href="{{ route('tickets.create') }}" class="btn btn-primary waves-effect waves-light">
+                    <i class="bx bx-plus me-1"></i> Nouveau Ticket
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mini-stats-wid">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-semibold mb-2 font-size-14">Total Tickets</p>
+                        <h2 class="mb-0 fw-bold text-primary">{{ $totalTickets }}</h2>
+                    </div>
+                    <div class="avatar-md align-self-center mini-stat-icon rounded-circle bg-primary bg-soft">
+                        <span class="avatar-title rounded-circle bg-primary text-white">
+                            <i class="bx bx-copy-alt font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card mini-stats-wid">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-semibold mb-2 font-size-14">Tickets En Cours</p>
+                        <h2 class="mb-0 fw-bold text-warning">{{ $ticketsOuverts }}</h2>
+                    </div>
+                    <div class="avatar-md align-self-center mini-stat-icon rounded-circle bg-warning bg-soft">
+                        <span class="avatar-title rounded-circle bg-warning text-white">
+                            <i class="bx bx-hourglass font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card mini-stats-wid">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-semibold mb-2 font-size-14">Retards SLA</p>
+                        <h2 class="mb-0 fw-bold text-danger">{{ $ticketsRetardSla }}</h2>
+                    </div>
+                    <div class="avatar-md align-self-center mini-stat-icon rounded-circle bg-danger bg-soft">
+                        <span class="avatar-title rounded-circle bg-danger text-white">
+                            <i class="bx bx-error font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card mini-stats-wid">
+            <div class="card-body">
+                <div class="d-flex">
+                    <div class="flex-grow-1">
+                        <p class="text-muted fw-semibold mb-2 font-size-14">Parc Machines</p>
+                        <h2 class="mb-0 fw-bold text-success">{{ $totalMachines }}</h2>
+                    </div>
+                    <div class="avatar-md align-self-center mini-stat-icon rounded-circle bg-success bg-soft">
+                        <span class="avatar-title rounded-circle bg-success text-white">
+                            <i class="bx bx-desktop font-size-24"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tables with 3 Tabs -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                
+                <!-- Nav Tabs -->
+                <ul class="nav nav-tabs nav-tabs-custom mb-3" id="dashboardTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold {{ $activeTab == 'en_cours' ? 'active' : '' }}" id="encours-tab" data-bs-toggle="tab" data-bs-target="#encours-pane" type="button" role="tab">
+                            <i class="bx bx-time-five me-1"></i> En Cours ({{ $ticketsEnCours->total() }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-success {{ $activeTab == 'resolus' ? 'active' : '' }}" id="resolus-tab" data-bs-toggle="tab" data-bs-target="#resolus-pane" type="button" role="tab">
+                            <i class="bx bx-check-circle me-1"></i> Résolus ({{ $ticketsResolus->total() }})
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold text-danger {{ $activeTab == 'abandons' ? 'active' : '' }}" id="abandons-tab" data-bs-toggle="tab" data-bs-target="#abandons-pane" type="button" role="tab">
+                            <i class="bx bx-x-circle me-1"></i> Abandonnés / Annulés ({{ $ticketsAbandons->total() }})
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="dashboardTabsContent">
+                    
+                    <!-- Tab 1: En Cours -->
+                    <div class="tab-pane fade {{ $activeTab == 'en_cours' ? 'show active' : '' }}" id="encours-pane" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table align-middle table-nowrap mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Référence</th>
+                                        <th>Client</th>
+                                        <th>Sujet</th>
+                                        <th>Statut</th>
+                                        <th>Priorité</th>
+                                        <th class="text-center">Assigné à</th>
+                                        <th>Échéance SLA</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($ticketsEnCours as $ticket)
+                                        @php
+                                            $badgeColor = $ticket->status?->couleur;
+                                            $bgClass = 'warning';
+                                            $colorMap = ['Orange' => 'warning', 'Vert' => 'success', 'Rouge' => 'danger', 'Gris' => 'secondary', 'Bleu' => 'primary', 'Bleu Ciel' => 'info'];
+                                            if (isset($colorMap[$badgeColor])) { $bgClass = $colorMap[$badgeColor]; }
+                                        @endphp
+                                        <tr onclick="if(event.target.tagName !== 'SELECT' && event.target.tagName !== 'OPTION') { window.location='{{ route('tickets.show', $ticket) }}'; }" class="clickable-row">
+                                            <td><span class="text-body fw-bold">{{ $ticket->reference }}</span></td>
+                                            <td>{{ $ticket->client?->nom_societe ?? 'N/A' }}</td>
+                                            <td>{{ Str::limit($ticket->titre, 35) }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $bgClass }} font-size-12">
+                                                    {{ $ticket->status?->nom ?? 'N/A' }}
+                                                </span>
+                                            </td>
+                                            <td><span class="badge bg-soft-info text-info font-size-12">{{ $ticket->priority?->nom ?? 'N/A' }}</span></td>
+                                            
+                                            <!-- Assignation -->
+                                            <td class="text-center">
+                                                @if(auth()->user()->hasRole('Admin') || auth()->user()->email === 'admin@gmail.com')
+                                                    <form action="{{ route('tickets.assign', $ticket->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <select name="assigned_to" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                            <option value="">-- Non assigné --</option>
+                                                            @foreach($users as $user)
+                                                                <option value="{{ $user->id }}" {{ $ticket->assigned_to == $user->id ? 'selected' : '' }}>
+                                                                    {{ $user->name ?? $user->nom }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </form>
+                                                @else
+                                                    {{ $ticket->assignedTo?->name ?? $ticket->assignedTo?->nom ?? 'Non assigné' }}
+                                                @endif
+                                            </td>
+
+                                            <td>
+                                                @if($ticket->date_echeance_sla && $ticket->date_echeance_sla->isPast() && optional($ticket->status)->est_final != true)
+                                                    <span class="text-danger fw-bold"><i class="bx bx-alarm-exclamation me-1"></i>{{ $ticket->date_echeance_sla->format('d/m/Y H:i') }}</span>
+                                                @else
+                                                    {{ $ticket->date_echeance_sla ? $ticket->date_echeance_sla->format('d/m/Y H:i') : '-' }}
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="7" class="text-center py-3 text-muted">Aucun ticket en cours.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted">Affichage de {{ $ticketsEnCours->firstItem() ?? 0 }} à {{ $ticketsEnCours->lastItem() ?? 0 }} sur {{ $ticketsEnCours->total() }} résultats</small>
+                            <div>{{ $ticketsEnCours->links('pagination::bootstrap-5') }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Résolus -->
+                    <div class="tab-pane fade {{ $activeTab == 'resolus' ? 'show active' : '' }}" id="resolus-pane" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table align-middle table-nowrap mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Référence</th>
+                                        <th>Client</th>
+                                        <th>Sujet</th>
+                                        <th>Statut</th>
+                                        <th>Priorité</th>
+                                        <th class="text-center">Assigné à</th>
+                                        <th>Date Résolution</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($ticketsResolus as $ticket)
+                                        @php
+                                            $badgeColor = $ticket->status?->couleur;
+                                            $bgClass = 'success';
+                                            $colorMap = ['Orange' => 'warning', 'Vert' => 'success', 'Rouge' => 'danger', 'Gris' => 'secondary', 'Bleu' => 'primary', 'Bleu Ciel' => 'info'];
+                                            if (isset($colorMap[$badgeColor])) { $bgClass = $colorMap[$badgeColor]; }
+                                        @endphp
+                                        <tr onclick="if(event.target.tagName !== 'SELECT' && event.target.tagName !== 'OPTION') { window.location='{{ route('tickets.show', $ticket) }}'; }" class="clickable-row">
+                                            <td><span class="text-success fw-bold">{{ $ticket->reference }}</span></td>
+                                            <td>{{ $ticket->client?->nom_societe ?? 'N/A' }}</td>
+                                            <td>{{ Str::limit($ticket->titre, 35) }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $bgClass }} font-size-12">
+                                                    {{ $ticket->status?->nom ?? 'N/A' }}
+                                                </span>
+                                            </td>
+                                            <td><span class="badge bg-soft-info text-info font-size-12">{{ $ticket->priority?->nom ?? 'N/A' }}</span></td>
+                                            
+                                            <!-- Assignation -->
+                                            <td class="text-center">
+                                                @if(auth()->user()->hasRole('Admin') || auth()->user()->email === 'admin@gmail.com')
+                                                    <form action="{{ route('tickets.assign', $ticket->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <select name="assigned_to" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                            <option value="">-- Non assigné --</option>
+                                                            @foreach($users as $user)
+                                                                <option value="{{ $user->id }}" {{ $ticket->assigned_to == $user->id ? 'selected' : '' }}>
+                                                                    {{ $user->name ?? $user->nom }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </form>
+                                                @else
+                                                    {{ $ticket->assignedTo?->name ?? $ticket->assignedTo?->nom ?? 'Non assigné' }}
+                                                @endif
+                                            </td>
+
+                                            <td><small class="text-muted">{{ $ticket->updated_at->format('d/m/Y H:i') }}</small></td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="7" class="text-center py-3 text-muted">Aucun ticket résolu.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted">Affichage de {{ $ticketsResolus->firstItem() ?? 0 }} à {{ $ticketsResolus->lastItem() ?? 0 }} sur {{ $ticketsResolus->total() }} résultats</small>
+                            <div>{{ $ticketsResolus->links('pagination::bootstrap-5') }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Abandonnés / Annulés -->
+                    <div class="tab-pane fade {{ $activeTab == 'abandons' ? 'show active' : '' }}" id="abandons-pane" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table align-middle table-nowrap mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Référence</th>
+                                        <th>Client</th>
+                                        <th>Sujet</th>
+                                        <th>Statut</th>
+                                        <th>Priorité</th>
+                                        <th class="text-center">Assigné à</th>
+                                        <th>Date Annulation</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($ticketsAbandons as $ticket)
+                                        @php
+                                            $badgeColor = $ticket->status?->couleur;
+                                            $bgClass = 'danger';
+                                            $colorMap = ['Orange' => 'warning', 'Vert' => 'success', 'Rouge' => 'danger', 'Gris' => 'secondary', 'Bleu' => 'primary', 'Bleu Ciel' => 'info'];
+                                            if (isset($colorMap[$badgeColor])) { $bgClass = $colorMap[$badgeColor]; }
+                                        @endphp
+                                        <tr onclick="if(event.target.tagName !== 'SELECT' && event.target.tagName !== 'OPTION') { window.location='{{ route('tickets.show', $ticket) }}'; }" class="clickable-row">
+                                            <td><span class="text-danger fw-bold">{{ $ticket->reference }}</span></td>
+                                            <td>{{ $ticket->client?->nom_societe ?? 'N/A' }}</td>
+                                            <td>{{ Str::limit($ticket->titre, 35) }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ $bgClass }} font-size-12">
+                                                    {{ $ticket->status?->nom ?? 'N/A' }}
+                                                </span>
+                                            </td>
+                                            <td><span class="badge bg-soft-info text-info font-size-12">{{ $ticket->priority?->nom ?? 'N/A' }}</span></td>
+                                            
+                                            <!-- Assignation -->
+                                            <td class="text-center">
+                                                @if(auth()->user()->hasRole('Admin') || auth()->user()->email === 'admin@gmail.com')
+                                                    <form action="{{ route('tickets.assign', $ticket->id) }}" method="POST" class="d-inline">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <select name="assigned_to" class="form-select form-select-sm" onchange="this.form.submit()">
+                                                            <option value="">-- Non assigné --</option>
+                                                            @foreach($users as $user)
+                                                                <option value="{{ $user->id }}" {{ $ticket->assigned_to == $user->id ? 'selected' : '' }}>
+                                                                    {{ $user->name ?? $user->nom }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </form>
+                                                @else
+                                                    {{ $ticket->assignedTo?->name ?? $ticket->assignedTo?->nom ?? 'Non assigné' }}
+                                                @endif
+                                            </td>
+
+                                            <td><small class="text-muted">{{ $ticket->updated_at->format('d/m/Y H:i') }}</small></td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="7" class="text-center py-3 text-muted">Aucun ticket abandonné ou annulé.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted">Affichage de {{ $ticketsAbandons->firstItem() ?? 0 }} à {{ $ticketsAbandons->lastItem() ?? 0 }} sur {{ $ticketsAbandons->total() }} résultats</small>
+                            <div>{{ $ticketsAbandons->links('pagination::bootstrap-5') }}</div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- TABLEAU STATISTIQUE DES SITES PAR CLIENT -->
+<!-- ========================================== -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-transparent border-bottom py-3">
+                <h5 class="card-title mb-0 font-size-16 text-primary">
+                    <i class="bx bx-bar-chart-alt-2 me-1"></i> Suivi des Contrats par Client et par Site
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Client / Société</th>
+                                <th class="text-center">Total Sites</th>
+                                <th class="text-center text-success">Sites Sous Contrat</th>
+                                <th class="text-center text-danger">Sites Hors Contrat</th>
+                                <th class="text-center">État Global</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($clientContractStats as $stat)
+                                <tr>
+                                    <td>
+                                        <span class="fw-bold text-dark">{{ $stat->nom_societe }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        @if($stat->total_sites > 0)
+                                            <span class="badge bg-secondary font-size-12">{{ $stat->total_sites }}</span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if($stat->sites_sous_contrat > 0)
+                                            <span class="badge bg-success font-size-12 text-white">
+                                                {{ $stat->sites_sous_contrat }} site(s)
+                                            </span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if($stat->sites_hors_contrat > 0)
+                                            <span class="badge bg-danger font-size-12 text-white">
+                                                {{ $stat->sites_hors_contrat }} site(s)
+                                            </span>
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-center">
+                                        @if($stat->total_sites == 0)
+                                            <span class="badge bg-secondary font-size-12">Aucun site</span>
+                                        @elseif($stat->sites_sous_contrat == $stat->total_sites)
+                                            <span class="badge bg-success font-size-12">100% Sous Contrat</span>
+                                        @elseif($stat->sites_hors_contrat == $stat->total_sites)
+                                            <span class="badge bg-danger font-size-12">100% Hors Contrat</span>
+                                        @else
+                                            <span class="badge bg-warning font-size-12 text-dark">Mixte (Partiel)</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">Aucun client trouvé.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection
