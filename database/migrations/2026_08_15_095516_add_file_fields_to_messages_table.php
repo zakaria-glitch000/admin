@@ -12,9 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->string('file_path')->nullable()->after('body');
-            $table->string('file_type')->nullable()->after('file_path');
-            $table->string('original_name')->nullable()->after('file_type');
+            if (!Schema::hasColumn('messages', 'file_path')) {
+                $table->string('file_path')->nullable()->after('body');
+            }
+            if (!Schema::hasColumn('messages', 'file_type')) {
+                $table->string('file_type')->nullable()->after('file_path');
+            }
+            if (!Schema::hasColumn('messages', 'original_name')) {
+                $table->string('original_name')->nullable()->after('file_type');
+            }
         });
     }
 
@@ -24,7 +30,14 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('messages', function (Blueprint $table) {
-            $table->dropColumn(['file_path', 'file_type', 'original_name']);
+            $table->dropColumn(array_intersect(
+                ['file_path', 'file_type', 'original_name'], 
+                [
+                    Schema::hasColumn('messages', 'file_path') ? 'file_path' : null,
+                    Schema::hasColumn('messages', 'file_type') ? 'file_type' : null,
+                    Schema::hasColumn('messages', 'original_name') ? 'original_name' : null,
+                ]
+            ));
         });
     }
 };
