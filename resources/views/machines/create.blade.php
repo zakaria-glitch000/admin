@@ -83,6 +83,18 @@
                             @enderror
                         </div>
 
+                        <!-- Date d'installation -->
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date d'installation</label>
+                            <input type="date" name="date_installation" class="form-control @error('date_installation') is-invalid @enderror" value="{{ old('date_installation') }}">
+                            @error('date_installation')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Date de fin de garantie -->
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Date de fin de garantie</label>
                             <input type="date" name="date_fin_garantie" class="form-control @error('date_fin_garantie') is-invalid @enderror" value="{{ old('date_fin_garantie') }}">
@@ -90,9 +102,7 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
-                    </div>
 
-                    <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Statut <span class="text-danger">*</span></label>
                             <select name="statut" class="form-select @error('statut') is-invalid @enderror" required>

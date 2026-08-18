@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Carbon\Carbon;
 
 class ClientController extends Controller
@@ -17,7 +18,6 @@ class ClientController extends Controller
         $this->middleware(function ($request, $next) {
             $user = Auth::user();
             
-            // السماح للأدمن، أو صاحب الإيميل، أو من يمتلك صلاحية client-list
             if (
                 !$user->hasRole('Admin') && 
                 $user->email !== 'admin@gmail.com' && 
@@ -38,7 +38,9 @@ class ClientController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('nom_societe', 'like', "%{$search}%")
+                  ->orWhere('raison_sociale', 'like', "%{$search}%")
                   ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('ice', 'like', "%{$search}%")
                   ->orWhere('telephone_principal', 'like', "%{$search}%");
             });
         }
@@ -93,18 +95,28 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nom_societe' => 'required|string|max:255',
-            'secteur_activite' => 'nullable|string|max:255',
-            'telephone_principal' => 'required|string|max:50',
-            'email' => 'nullable|email|max:255|unique:users,email|unique:clients,email',
-            'notes' => 'nullable|string',
+            'nom_societe'         => 'nullable|string|max:255',
+            'raison_sociale'      => 'nullable|string|max:255',
+            'ice'                 => ['nullable', 'string', 'max:50', Rule::unique('clients', 'ice')->whereNull('deleted_at')],
+            'secteur_activite'    => 'nullable|string|max:255',
+            'telephone_principal' => 'nullable|string|max:50',
+            'email'               => [
+                'nullable',
+                'email',
+                'max:255',
+                Rule::unique('users', 'email')->whereNull('deleted_at'),
+                Rule::unique('clients', 'email')->whereNull('deleted_at'),
+            ],
+            'notes'               => 'nullable|string',
         ]);
 
+        $nomSociete = $validated['nom_societe'] ?? $validated['raison_sociale'] ?? 'Client Sans Nom';
+
         $user = User::create([
-            'nom' => $validated['nom_societe'],
-            'email' => $validated['email'] ?? strtolower(str_replace(' ', '', $validated['nom_societe'])) . '@client.com',
-            'telephone' => $validated['telephone_principal'],
-            'password' => Hash::make('password123'),
+            'nom'       => $nomSociete,
+            'email'     => $validated['email'] ?? strtolower(str_replace(' ', '', $nomSociete)) . rand(10,99) . '@client.com',
+            'telephone' => $validated['telephone_principal'] ?? null,
+            'password'  => Hash::make('password123'),
         ]);
 
         if (method_exists($user, 'assignRole')) {
@@ -112,12 +124,14 @@ class ClientController extends Controller
         }
 
         $client = Client::create([
-            'user_id' => $user->id,
-            'nom_societe' => $validated['nom_societe'],
-            'secteur_activite' => $validated['secteur_activite'] ?? null,
-            'telephone_principal' => $validated['telephone_principal'],
-            'email' => $validated['email'] ?? null,
-            'notes' => $validated['notes'] ?? null,
+            'user_id'             => $user->id,
+            'nom_societe'         => $validated['nom_societe'] ?? null,
+            'raison_sociale'      => $validated['raison_sociale'] ?? null,
+            'ice'                 => $validated['ice'] ?? null,
+            'secteur_activite'    => $validated['secteur_activite'] ?? null,
+            'telephone_principal' => $validated['telephone_principal'] ?? null,
+            'email'               => $validated['email'] ?? null,
+            'notes'               => $validated['notes'] ?? null,
         ]);
 
         return redirect()->route('clients.show', $client)->with('success', 'Client et son compte de connexion créés avec succès.');
@@ -137,28 +151,32 @@ class ClientController extends Controller
     public function update(Request $request, Client $client)
     {
         $validated = $request->validate([
-            'nom_societe' => 'required|string|max:255',
-            'secteur_activite' => 'nullable|string|max:255',
-            'telephone_principal' => 'required|string|max:50',
-            'email' => 'nullable|email|max:255',
-            'notes' => 'nullable|string',
+            'nom_societe'         => 'nullable|string|max:255',
+            'raison_sociale'      => 'nullable|string|max:255',
+            'ice'                 => ['nullable', 'string', 'max:50', Rule::unique('clients', 'ice')->ignore($client->id)->whereNull('deleted_at')],
+            'secteur_activite'    => 'nullable|string|max:255',
+            'telephone_principal' => 'nullable|string|max:50',
+            'email'               => ['nullable', 'email', 'max:255', Rule::unique('clients', 'email')->ignore($client->id)->whereNull('deleted_at')],
+            'notes'               => 'nullable|string',
         ]);
 
         $dataToUpdate = [
-            'nom_societe' => $validated['nom_societe'],
-            'secteur_activite' => $validated['secteur_activite'],
-            'telephone_principal' => $validated['telephone_principal'],
-            'email' => $validated['email'],
-            'notes' => $validated['notes'],
+            'nom_societe'         => $validated['nom_societe'] ?? null,
+            'raison_sociale'      => $validated['raison_sociale'] ?? null,
+            'ice'                 => $validated['ice'] ?? null,
+            'secteur_activite'    => $validated['secteur_activite'] ?? null,
+            'telephone_principal' => $validated['telephone_principal'] ?? null,
+            'email'               => $validated['email'] ?? null,
+            'notes'               => $validated['notes'] ?? null,
         ];
 
         $client->update($dataToUpdate);
 
         if ($client->user_id) {
             User::where('id', $client->user_id)->update([
-                'nom' => $validated['nom_societe'],
-                'telephone' => $validated['telephone_principal'],
-                'email' => $validated['email'] ?? User::find($client->user_id)->email,
+                'nom'       => $validated['nom_societe'] ?? $validated['raison_sociale'] ?? 'Client',
+                'telephone' => $validated['telephone_principal'] ?? null,
+                'email'     => $validated['email'] ?? User::find($client->user_id)->email,
             ]);
         }
 
@@ -178,14 +196,14 @@ class ClientController extends Controller
     public function storeSite(Request $request, Client $client)
     {
         $validated = $request->validate([
-            'nom' => 'required|string|max:255',
-            'adresse' => 'required|string|max:255',
-            'ville' => 'required|string|max:100',
-            'numero_contrat' => 'nullable|string|max:255',
+            'nom'                => 'required|string|max:255',
+            'adresse'            => 'nullable|string|max:255',
+            'ville'              => 'nullable|string|max:100',
+            'numero_contrat'     => 'nullable|string|max:255',
             'date_debut_contrat' => 'nullable|date',
-            'date_fin_contrat' => 'nullable|date',
-            'contact_nom' => 'nullable|string|max:255',
-            'contact_telephone' => 'nullable|string|max:50',
+            'date_fin_contrat'   => 'nullable|date',
+            'contact_nom'        => 'nullable|string|max:255',
+            'contact_telephone'  => 'nullable|string|max:50',
         ]);
 
         $client->sites()->create($validated);
@@ -196,14 +214,14 @@ class ClientController extends Controller
     public function updateSite(Request $request, ClientSite $site)
     {
         $validated = $request->validate([
-            'nom' => 'required|string|max:255',
-            'adresse' => 'required|string|max:255',
-            'ville' => 'required|string|max:100',
-            'numero_contrat' => 'nullable|string|max:255',
+            'nom'                => 'required|string|max:255',
+            'adresse'            => 'nullable|string|max:255',
+            'ville'              => 'nullable|string|max:100',
+            'numero_contrat'     => 'nullable|string|max:255',
             'date_debut_contrat' => 'nullable|date',
-            'date_fin_contrat' => 'nullable|date',
-            'contact_nom' => 'nullable|string|max:255',
-            'contact_telephone' => 'nullable|string|max:50',
+            'date_fin_contrat'   => 'nullable|date',
+            'contact_nom'        => 'nullable|string|max:255',
+            'contact_telephone'  => 'nullable|string|max:50',
         ]);
 
         $site->update($validated);
@@ -217,12 +235,8 @@ class ClientController extends Controller
         return back()->with('success', 'Site supprimé avec succès.');
     }
 
-    // دالة التصدير لتوليد اسم ملف الإكسيل مع تاريخ اليوم
     public function export()
     {
         $fileName = 'Liste_Clients_' . now()->format('d-m-Y') . '.xlsx';
-
-        // يمكنك ربط هذه الدالة بمكتبة التصدير الخاصة بك (مثلاً Maatwebsite Excel)
-        // return Excel::download(new \App\Exports\ClientsExport, $fileName);
     }
 }

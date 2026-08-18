@@ -14,9 +14,6 @@ class ClientSite extends Model
         'nom',
         'adresse',
         'ville',
-        'numero_contrat',      // <-- ضروري تزاد هنا
-        'date_debut_contrat',  // <-- ضروري تزاد هنا
-        'date_fin_contrat',    // <-- ضروري تزاد هنا
         'contact_nom',
         'contact_telephone',
     ];
@@ -34,5 +31,11 @@ class ClientSite extends Model
     public function tickets()
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    // Relation m3a L-Historique dyal Les Contrats (Table jdida: site_contrats)
+    public function contrats()
+    {
+        return $this->hasMany(SiteContrat::class, 'site_id');
     }
 }

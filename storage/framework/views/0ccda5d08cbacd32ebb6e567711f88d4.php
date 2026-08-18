@@ -42,7 +42,7 @@
                     <div class="col-md-9">
                         <div class="search-box">
                             <div class="position-relative">
-                                <input type="text" name="search" id="filterSearch" class="form-control" placeholder="Rechercher par nom, email, téléphone..." value="<?php echo e(request('search')); ?>">
+                                <input type="text" name="search" id="filterSearch" class="form-control" placeholder="Rechercher par nom de société, raison sociale, ICE, email..." value="<?php echo e(request('search')); ?>">
                                 <i class="bx bx-search search-icon"></i>
                             </div>
                         </div>
@@ -71,55 +71,67 @@
                     </button>
 
                     <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bx bx-slider-alt me-1"></i> Afficher / Masquer Colonnes
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Afficher / Masquer Colonnes">
+                            <i class="bx bx-slider-alt"></i>
                         </button>
-                        <ul class="dropdown-menu p-3 shadow" style="min-width: 200px;" onclick="event.stopPropagation();">
+                        <ul class="dropdown-menu dropdown-menu-end p-3 shadow" style="min-width: 200px;" onclick="event.stopPropagation();">
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="cli_societe" checked onchange="toggleColumn('clientsTable', 'societe', this)">
-                                    <label class="form-check-label" for="cli_societe">Société / Client</label>
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="cli_nom_societe" data-column="nom_societe" checked onchange="toggleColumn('clientsTable', 'nom_societe', this)">
+                                    <label class="form-check-label" for="cli_nom_societe">Nom Société</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="cli_secteur" checked onchange="toggleColumn('clientsTable', 'secteur', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="cli_raison_sociale" data-column="raison_sociale" checked onchange="toggleColumn('clientsTable', 'raison_sociale', this)">
+                                    <label class="form-check-label" for="cli_raison_sociale">Raison Sociale</label>
+                                </div>
+                            </li>
+                            <li class="mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="cli_ice" data-column="ice" checked onchange="toggleColumn('clientsTable', 'ice', this)">
+                                    <label class="form-check-label" for="cli_ice">ICE</label>
+                                </div>
+                            </li>
+                            <li class="mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="cli_secteur" data-column="secteur" checked onchange="toggleColumn('clientsTable', 'secteur', this)">
                                     <label class="form-check-label" for="cli_secteur">Secteur</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="cli_telephone" checked onchange="toggleColumn('clientsTable', 'telephone', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="cli_telephone" data-column="telephone" checked onchange="toggleColumn('clientsTable', 'telephone', this)">
                                     <label class="form-check-label" for="cli_telephone">Téléphone</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="cli_email" checked onchange="toggleColumn('clientsTable', 'email', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="cli_email" data-column="email" checked onchange="toggleColumn('clientsTable', 'email', this)">
                                     <label class="form-check-label" for="cli_email">Email</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="cli_sites" checked onchange="toggleColumn('clientsTable', 'sites', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="cli_sites" data-column="sites" checked onchange="toggleColumn('clientsTable', 'sites', this)">
                                     <label class="form-check-label" for="cli_sites">Nombre de Sites</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="cli_contrat" checked onchange="toggleColumn('clientsTable', 'contrat', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="cli_contrat" data-column="contrat" checked onchange="toggleColumn('clientsTable', 'contrat', this)">
                                     <label class="form-check-label" for="cli_contrat">État Contrats</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="cli_tickets" checked onchange="toggleColumn('clientsTable', 'tickets', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="cli_tickets" data-column="tickets" checked onchange="toggleColumn('clientsTable', 'tickets', this)">
                                     <label class="form-check-label" for="cli_tickets">Total Tickets</label>
                                 </div>
                             </li>
                             <li>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="cli_action" checked onchange="toggleColumn('clientsTable', 'action', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="cli_action" data-column="action" checked onchange="toggleColumn('clientsTable', 'action', this)">
                                     <label class="form-check-label" for="cli_action">Action</label>
                                 </div>
                             </li>
@@ -128,10 +140,12 @@
                 </div>
 
                 <div class="table-responsive">
-                    <table class="table align-middle table-nowrap table-hover mb-0" id="clientsTable">
+                    <table class="table align-middle table-hover mb-0" id="clientsTable">
                         <thead class="table-light">
                             <tr>
-                                <th data-column="societe">Société / Client</th>
+                                <th data-column="nom_societe">Nom Société</th>
+                                <th data-column="raison_sociale">Raison Sociale</th>
+                                <th data-column="ice">ICE</th>
                                 <th data-column="secteur">Secteur</th>
                                 <th data-column="telephone">Téléphone</th>
                                 <th data-column="email">Email</th>
@@ -143,40 +157,74 @@
                         </thead>
                         <tbody>
                             <?php $__empty_1 = true; $__currentLoopData = $clients; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $client): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                <?php
+                                    $totalSites = $client->sites->count();
+                                    $sousContratCount = 0;
+                                    
+                                    foreach($client->sites as $site) {
+                                        $latestContrat = $site->contrats()->latest('date_fin')->first();
+                                        if($latestContrat) {
+                                            $today = \Carbon\Carbon::today();
+                                            $debut = \Carbon\Carbon::parse($latestContrat->date_debut);
+                                            $fin = \Carbon\Carbon::parse($latestContrat->date_fin);
+                                            if($today->between($debut, $fin)) {
+                                                $sousContratCount++;
+                                            }
+                                        }
+                                    }
+                                    $horsContratCount = $totalSites - $sousContratCount;
+
+                                    if($totalSites === 0) {
+                                        $label = 'Aucun site';
+                                        $color = 'secondary';
+                                    } elseif($sousContratCount === $totalSites) {
+                                        $label = 'Sous contrat';
+                                        $color = 'success';
+                                    } elseif($sousContratCount > 0) {
+                                        $label = 'Partiellement sous contrat';
+                                        $color = 'warning';
+                                    } else {
+                                        $label = 'Hors contrat';
+                                        $color = 'danger';
+                                    }
+                                ?>
+
                                 <tr class="clickable-row" data-href="<?php echo e(route('clients.show', $client)); ?>">
-                                    <td data-column="societe">
+                                    <td data-column="nom_societe">
                                         <span class="text-body fw-bold">
-                                            <?php echo e($client->nom_societe); ?>
+                                            <?php echo e($client->nom_societe ?? '-'); ?>
 
                                         </span>
                                     </td>
+                                    <td data-column="raison_sociale">
+                                        <?php echo e($client->raison_sociale ?? '-'); ?>
+
+                                    </td>
+                                    <td data-column="ice">
+                                        <code><?php echo e($client->ice ?? '-'); ?></code>
+                                    </td>
                                     <td data-column="secteur"><?php echo e($client->secteur_activite ?? 'Non défini'); ?></td>
-                                    <td data-column="telephone"><?php echo e($client->telephone_principal); ?></td>
+                                    <td data-column="telephone"><?php echo e($client->telephone_principal ?? '-'); ?></td>
                                     <td data-column="email"><?php echo e($client->email ?? '-'); ?></td>
 
                                     <td data-column="sites">
                                         <span class="badge bg-soft-info text-info font-size-12">
-                                            <?php echo e($client->computed_total_sites ?? $client->sites->count()); ?> site(s)
+                                            <?php echo e($totalSites); ?> site(s)
                                         </span>
                                     </td>
                                     
                                     <td data-column="contrat">
                                         <div class="d-flex flex-column gap-1">
                                             <div>
-                                                <span class="badge bg-soft-<?php echo e($client->etat_contrat_color ?? 'secondary'); ?> text-<?php echo e($client->etat_contrat_color ?? 'secondary'); ?> font-size-11">
-                                                    <?php echo e($client->etat_contrat_label ?? 'Aucun site'); ?>
+                                                <span class="badge bg-soft-<?php echo e($color); ?> text-<?php echo e($color); ?> font-size-11">
+                                                    <?php echo e($label); ?>
 
                                                 </span>
                                             </div>
-                                            <?php
-                                                $total = $client->computed_total_sites ?? $client->sites->count();
-                                                $actifs = $client->computed_sous_contrat ?? 0;
-                                                $expires = $total - $actifs;
-                                            ?>
-                                            <?php if($total > 0): ?>
+                                            <?php if($totalSites > 0): ?>
                                                 <small class="text-muted font-size-11">
-                                                    <span class="text-success fw-bold"><?php echo e($actifs); ?> sous contrat</span> / 
-                                                    <span class="text-danger fw-bold"><?php echo e($expires); ?> Expirée</span>
+                                                    <span class="text-success fw-bold"><?php echo e($sousContratCount); ?> sous contrat</span> / 
+                                                    <span class="text-danger fw-bold"><?php echo e($horsContratCount); ?> hors contrat</span>
                                                 </small>
                                             <?php endif; ?>
                                         </div>
@@ -202,51 +250,9 @@
                                         </form>
                                     </td>
                                 </tr>
-
-                                <!-- Modal Modification Client -->
-                                <div class="modal fade" id="editClientModal<?php echo e($client->id); ?>" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Modifier le Client: <?php echo e($client->nom_societe); ?></h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <form action="<?php echo e(route('clients.update', $client->id)); ?>" method="POST">
-                                                <?php echo csrf_field(); ?>
-                                                <?php echo method_field('PUT'); ?>
-                                                <div class="modal-body text-start">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Raison Sociale / Nom Société <span class="text-danger">*</span></label>
-                                                        <input type="text" name="nom_societe" class="form-control" value="<?php echo e($client->nom_societe); ?>" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Téléphone Principal <span class="text-danger">*</span></label>
-                                                        <input type="text" name="telephone_principal" class="form-control" value="<?php echo e($client->telephone_principal); ?>" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Email</label>
-                                                        <input type="email" name="email" class="form-control" value="<?php echo e($client->email); ?>">
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Secteur d'Activité</label>
-                                                        <input type="text" name="secteur_activite" class="form-control" value="<?php echo e($client->secteur_activite); ?>">
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Notes / Remarques</label>
-                                                        <textarea name="notes" rows="2" class="form-control"><?php echo e($client->notes); ?></textarea>
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-                                                    <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Mettre à jour</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
                                 <tr>
-                                    <td colspan="8" class="text-center py-4 text-muted">Aucun client enregistré.</td>
+                                    <td colspan="10" class="text-center py-4 text-muted">Aucun client enregistré.</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -262,6 +268,58 @@
     </div>
 </div>
 
+<!-- Modales de modification -->
+<?php $__currentLoopData = $clients; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $client): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+    <div class="modal fade" id="editClientModal<?php echo e($client->id); ?>" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier le Client: <?php echo e($client->nom_societe ?? $client->raison_sociale); ?></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="<?php echo e(route('clients.update', $client->id)); ?>" method="POST">
+                    <?php echo csrf_field(); ?>
+                    <?php echo method_field('PUT'); ?>
+                    <div class="modal-body text-start">
+                        <div class="mb-3">
+                            <label class="form-label">Nom Société</label>
+                            <input type="text" name="nom_societe" class="form-control" value="<?php echo e(old('nom_societe', $client->nom_societe)); ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Raison Sociale</label>
+                            <input type="text" name="raison_sociale" class="form-control" value="<?php echo e(old('raison_sociale', $client->raison_sociale)); ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ICE</label>
+                            <input type="text" name="ice" class="form-control" value="<?php echo e(old('ice', $client->ice)); ?>" placeholder="ex: 001234567000089">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Téléphone Principal</label>
+                            <input type="text" name="telephone_principal" class="form-control" value="<?php echo e(old('telephone_principal', $client->telephone_principal)); ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="<?php echo e(old('email', $client->email)); ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Secteur d'Activité</label>
+                            <input type="text" name="secteur_activite" class="form-control" value="<?php echo e(old('secteur_activite', $client->secteur_activite)); ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes / Remarques</label>
+                            <textarea name="notes" rows="2" class="form-control"><?php echo e(old('notes', $client->notes)); ?></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                        <button type="submit" class="btn btn-primary"><i class="bx bx-save me-1"></i> Mettre à jour</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+
 <!-- Modal Ajout Client -->
 <div class="modal fade" id="addClientModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -274,24 +332,32 @@
                 <?php echo csrf_field(); ?>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Raison Sociale / Nom Société <span class="text-danger">*</span></label>
-                        <input type="text" name="nom_societe" class="form-control" placeholder="ex: Marjane Holding" required>
+                        <label class="form-label">Nom Société</label>
+                        <input type="text" name="nom_societe" class="form-control" value="<?php echo e(old('nom_societe')); ?>" placeholder="ex: Marjane Holding">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Téléphone Principal <span class="text-danger">*</span></label>
-                        <input type="text" name="telephone_principal" class="form-control" placeholder="ex: +212 522 00 00 00" required>
+                        <label class="form-label">Raison Sociale</label>
+                        <input type="text" name="raison_sociale" class="form-control" value="<?php echo e(old('raison_sociale')); ?>" placeholder="ex: Marjane Holding S.A">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ICE</label>
+                        <input type="text" name="ice" class="form-control" value="<?php echo e(old('ice')); ?>" placeholder="ex: 001234567000089">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Téléphone Principal</label>
+                        <input type="text" name="telephone_principal" class="form-control" value="<?php echo e(old('telephone_principal')); ?>" placeholder="ex: +212 522 00 00 00">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" placeholder="contact@societe.ma">
+                        <input type="email" name="email" class="form-control" value="<?php echo e(old('email')); ?>" placeholder="contact@societe.ma">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Secteur d'Activité</label>
-                        <input type="text" name="secteur_activite" class="form-control" placeholder="ex: Grande Distribution, Retail, Banque">
+                        <input type="text" name="secteur_activite" class="form-control" value="<?php echo e(old('secteur_activite')); ?>" placeholder="ex: Grande Distribution, Retail, Banque">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Notes / Remarques</label>
-                        <textarea name="notes" rows="2" class="form-control"></textarea>
+                        <textarea name="notes" rows="2" class="form-control"><?php echo e(old('notes')); ?></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -307,6 +373,17 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        const storageKey = 'clients_table_columns_visibility';
+        let savedVisibility = JSON.parse(localStorage.getItem(storageKey)) || {};
+
+        document.querySelectorAll('.column-checkbox').forEach(checkbox => {
+            let colName = checkbox.getAttribute('data-column');
+            if (savedVisibility.hasOwnProperty(colName)) {
+                checkbox.checked = savedVisibility[colName];
+            }
+            applyColumnVisibility('clientsTable', colName, checkbox.checked);
+        });
+
         const form = document.getElementById('filterForm');
         const searchInput = document.getElementById('filterSearch');
 
@@ -320,7 +397,6 @@
             });
         }
 
-        // تفعيل النقر على الـ Ligne كاملة
         const clickableRows = document.querySelectorAll('.clickable-row');
         clickableRows.forEach(row => {
             row.addEventListener('click', function(e) {
@@ -334,6 +410,16 @@
 
     function toggleColumn(tableId, columnName, checkbox) {
         let isChecked = checkbox.checked;
+        
+        const storageKey = 'clients_table_columns_visibility';
+        let savedVisibility = JSON.parse(localStorage.getItem(storageKey)) || {};
+        savedVisibility[columnName] = isChecked;
+        localStorage.setItem(storageKey, JSON.stringify(savedVisibility));
+
+        applyColumnVisibility(tableId, columnName, isChecked);
+    }
+
+    function applyColumnVisibility(tableId, columnName, isChecked) {
         let table = document.getElementById(tableId);
         if (!table) return;
 
@@ -367,7 +453,6 @@
             });
         });
 
-        // جلب تاريخ اليوم وتنسيقه (DD-MM-YYYY)
         let today = new Date();
         let day = String(today.getDate()).padStart(2, '0');
         let month = String(today.getMonth() + 1).padStart(2, '0');
@@ -375,7 +460,6 @@
         let dateStr = `${day}-${month}-${year}`;
 
         let wb = XLSX.utils.table_to_book(cloneTable, {sheet: "Data"});
-        // دمج اسم الملف مع تاريخ اليوم
         XLSX.writeFile(wb, filename + '_' + dateStr + '.xlsx');
     }
 </script>

@@ -11,9 +11,11 @@ class Client extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
+protected $fillable = [
         'user_id',
         'nom_societe',
+        'raison_sociale', // <-- Zidha hna
+        'ice',            // <-- Zidha hna
         'secteur_activite',
         'telephone_principal',
         'email',

@@ -6,16 +6,6 @@
 <!-- owl.carousel css -->
     <link rel="stylesheet" href="<?php echo e(URL::asset('build/libs/owl.carousel/assets/owl.carousel.min.css')); ?>">
     <link rel="stylesheet" href="<?php echo e(URL::asset('build/libs/owl.carousel/assets/owl.theme.default.min.css')); ?>">
-
-    <!-- 👈 تكبير وتعديل اللوغو هنا باش يبان كبير وناضج -->
-<style>
-        .auth-logo img {
-            height: 250px !important;       /* 👈 هنا زيرنا الطول مزيان */
-            max-height: 1000px !important;  /* 👈 أقصى طول ممكن يوصل ليه */
-            width: auto !important;
-            object-fit: contain !important;
-        }
-    </style>
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('body'); ?>
@@ -67,10 +57,9 @@
 
                         <div class="d-flex flex-column h-100">
                             <div class="mb-4 mb-md-5">
-                                <a href="#" class="d-block auth-logo">
-                                    <!-- 👈 استبدال مسار الصور باللوغو الجديد الخاص بك -->
-                                    <img src="<?php echo e(URL::asset('build/images/logo-dark.png')); ?>" alt="" class="auth-logo-dark">
-                                    <img src="<?php echo e(URL::asset('build/images/logo-light.png')); ?>" alt="" class="auth-logo-light">
+                                <!-- 👈 هنا تم تعويض التصاور القديمة بـ النص PC MAROC بخط كبير ونقي -->
+                                <a href="#" class="d-block auth-logo text-decoration-none">
+                                    <h1 style="font-weight: 800; font-size: 38px; color: #556ee6; letter-spacing: 1px; margin: 0;">PC MAROC</h1>
                                 </a>
                             </div>
                             <div class="my-auto">
@@ -100,7 +89,7 @@ if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
                                                  <span class="invalid-feedback" role="alert">
                                                  <strong><?php echo e($message); ?></strong>
-                                            </span>
+                                             </span>
                                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;

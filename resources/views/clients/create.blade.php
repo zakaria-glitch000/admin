@@ -19,17 +19,32 @@
             <div class="card-body">
                 <form action="{{ route('clients.store') }}" method="POST">
                     @csrf
+                    
+                    <!-- Ligne 1: Nom Société & Raison Sociale -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Raison Sociale / Nom Société <span class="text-danger">*</span></label>
-                            <input type="text" name="nom_societe" class="form-control" placeholder="ex: Marjane Holding" required>
+                            <label class="form-label">Nom Société</label>
+                            <input type="text" name="nom_societe" class="form-control" placeholder="ex: Marjane Holding">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Téléphone Principal <span class="text-danger">*</span></label>
-                            <input type="text" name="telephone_principal" class="form-control" placeholder="ex: +212 522 00 00 00" required>
+                            <label class="form-label">Raison Sociale</label>
+                            <input type="text" name="raison_sociale" class="form-control" placeholder="ex: Marjane Holding S.A">
                         </div>
                     </div>
 
+                    <!-- Ligne 2: ICE & Téléphone Principal -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">ICE</label>
+                            <input type="text" name="ice" class="form-control" placeholder="ex: 001234567000089">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Téléphone Principal</label>
+                            <input type="text" name="telephone_principal" class="form-control" placeholder="ex: +212 522 00 00 00">
+                        </div>
+                    </div>
+
+                    <!-- Ligne 3: Email & Secteur d'Activité -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Email</label>

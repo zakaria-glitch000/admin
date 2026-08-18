@@ -33,17 +33,17 @@
     </div>
 @endif
 
-<!-- Filters -->
+<!-- Filters (Automatic) -->
 <div class="row mb-3">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('machines.index') }}" method="GET" class="row g-3">
+                <form action="{{ route('machines.index') }}" method="GET" id="filterForm" class="row g-3">
                     <div class="col-md-3">
-                        <input type="text" name="search" class="form-control" placeholder="S/N, Marque ou Modèle..." value="{{ request('search') }}">
+                        <input type="text" name="search" id="filterSearch" class="form-control" placeholder="S/N, Marque ou Modèle..." value="{{ request('search') }}">
                     </div>
                     <div class="col-md-3">
-                        <select name="client_site_id" class="form-select">
+                        <select name="client_site_id" id="filterSite" class="form-select">
                             <option value="">Tous les sites</option>
                             @foreach($sites as $site)
                                 <option value="{{ $site->id }}" {{ request('client_site_id') == $site->id ? 'selected' : '' }}>
@@ -52,8 +52,8 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <select name="machine_category_id" class="form-select">
+                    <div class="col-md-3">
+                        <select name="machine_category_id" id="filterCategory" class="form-select">
                             <option value="">Toutes catégories</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}" {{ request('machine_category_id') == $category->id ? 'selected' : '' }}>
@@ -62,16 +62,13 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <select name="statut" class="form-select">
+                    <div class="col-md-3">
+                        <select name="statut" id="filterStatut" class="form-select">
                             <option value="">Tous les statuts</option>
                             <option value="actif" {{ request('statut') == 'actif' ? 'selected' : '' }}>Actif</option>
                             <option value="hors_service" {{ request('statut') == 'hors_service' ? 'selected' : '' }}>Hors Service</option>
                             <option value="remplace" {{ request('statut') == 'remplace' ? 'selected' : '' }}>Remplacé</option>
                         </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-secondary w-100"><i class="bx bx-filter-alt me-1"></i> Filtrer</button>
                     </div>
                 </form>
             </div>
@@ -115,6 +112,12 @@
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="mach_installation" checked onchange="toggleColumn('machinesTable', 'installation', this)">
+                                    <label class="form-check-label" for="mach_installation">Date d'installation</label>
+                                </div>
+                            </li>
+                            <li class="mb-2">
+                                <div class="form-check">
                                     <input class="form-check-input" type="checkbox" id="mach_client" checked onchange="toggleColumn('machinesTable', 'client', this)">
                                     <label class="form-check-label" for="mach_client">Client / Site</label>
                                 </div>
@@ -148,6 +151,7 @@
                                 <th data-column="sn">S/N (N° Série)</th>
                                 <th data-column="marque">Marque & Modèle</th>
                                 <th data-column="categorie">Catégorie</th>
+                                <th data-column="installation">Date d'installation</th>
                                 <th data-column="client">Client / Site</th>
                                 <th data-column="garantie">Garantie</th>
                                 <th data-column="statut">Statut</th>
@@ -164,6 +168,9 @@
                                     </td>
                                     <td data-column="marque">{{ $machine->marque }} - {{ $machine->modele }}</td>
                                     <td data-column="categorie"><span class="badge bg-soft-dark text-dark font-size-12">{{ $machine->category->nom ?? '-' }}</span></td>
+                                    <td data-column="installation">
+                                        {{ $machine->date_installation ? \Carbon\Carbon::parse($machine->date_installation)->format('d/m/Y') : '-' }}
+                                    </td>
                                     <td data-column="client">
                                         @if($machine->site && $machine->site->client)
                                             <div><strong>{{ $machine->site->client->nom_societe }}</strong></div>
@@ -209,7 +216,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-4 text-muted">Aucune machine enregistrée.</td>
+                                    <td colspan="8" class="text-center py-4 text-muted">Aucune machine enregistrée.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -246,6 +253,27 @@
                     window.location.href = url;
                 }
             });
+        });
+
+        // الفلترة التلقائية (Automatic Filtering)
+        const form = document.getElementById('filterForm');
+        const selects = form.querySelectorAll('select');
+        const searchInput = document.getElementById('filterSearch');
+
+        // بالنسبة للـ Selects: فاش يبدل شي خيار يدير Submit بوحده
+        selects.forEach(select => {
+            select.addEventListener('change', function() {
+                form.submit();
+            });
+        });
+
+        // بالنسبة للـ Input ديال البحث: درنا ليها Debounce باش متصيفطش Request فكل حرف (كتسنى نص ثانية من بعد ما يسالي كاتب)
+        let timeout = null;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {
+                form.submit();
+            }, 500); // 500 milliseconde
         });
     });
 

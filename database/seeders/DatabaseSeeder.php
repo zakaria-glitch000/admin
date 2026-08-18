@@ -26,21 +26,21 @@ class DatabaseSeeder extends Seeder
         ];
         DB::table('ticket_statuses')->insertOrIgnore($statuses);
 
-        // 3. Ticket Priorities (Normale, Urgent, Sans délai)
+        // 3. Ticket Priorities (Normale, Urgent بالأحمر, Sans délai)
         $priorities = [
             ['id' => 1, 'nom' => 'Normale', 'couleur' => 'Bleu Ciel', 'delai_sla_heures' => 48],
-            ['id' => 2, 'nom' => 'Urgent', 'couleur' => 'Orange', 'delai_sla_heures' => 12],
+            ['id' => 2, 'nom' => 'Urgent', 'couleur' => 'Rouge', 'delai_sla_heures' => 12],
             ['id' => 3, 'nom' => 'Sans délai', 'couleur' => 'Gris', 'delai_sla_heures' => 0],
         ];
         DB::table('ticket_priorities')->insertOrIgnore($priorities);
 
-        // 4. Ticket Categories
+        // 4. Ticket Categories (الجديدة)
         $ticketCategories = [
-            ['id' => 1, 'nom' => 'Panne matérielle'],
-            ['id' => 2, 'nom' => 'Panne logicielle'],
-            ['id' => 3, 'nom' => 'Réseau'],
-            ['id' => 4, 'nom' => 'Consommables'],
-            ['id' => 5, 'nom' => 'Question'],
+            ['id' => 1, 'nom' => 'Software'],
+            ['id' => 2, 'nom' => 'Hardware'],
+            ['id' => 3, 'nom' => 'Reseau'],
+            ['id' => 4, 'nom' => 'Autre'],
+            ['id' => 5, 'nom' => 'Hard/Soft'],
         ];
         DB::table('ticket_categories')->insertOrIgnore($ticketCategories);
 
