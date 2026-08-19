@@ -43,7 +43,7 @@
 
                     <!-- اسم الملف أو المرجع -->
                     <div class="mb-3">
-                        <label class="form-label">Nom / Référence du document <span class="text-danger">*</span></label>
+                        <label class="form-label">Num Doc<span class="text-danger">*</span></label>
                         <input type="text" name="nom_fichier" class="form-control" placeholder="Ex: Facture N° 2026/10" required>
                     </div>
 

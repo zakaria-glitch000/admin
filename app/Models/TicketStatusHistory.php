@@ -17,6 +17,7 @@ class TicketStatusHistory extends Model
         'nouveau_status_id',
         'user_id',
         'commentaire',
+        'temps_resolution',
         'created_at',
     ];
 

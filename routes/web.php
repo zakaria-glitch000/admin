@@ -56,6 +56,10 @@ Route::group(['middleware' => ['auth']], function () {
 
     // مسارات الإدارة العامة
     Route::get('/admin/dashboard-main', [DashboardController::class, 'index'])->name('admin.main.dashboard');
+    
+    // 🌟 الراوت الجديد الخاص بجلب بيانات المودال عبر AJAX
+    Route::get('/dashboard/modal-data', [DashboardController::class, 'modalData'])->name('dashboard.modal-data');
+
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 

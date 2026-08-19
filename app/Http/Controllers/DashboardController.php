@@ -44,14 +44,10 @@ class DashboardController extends Controller
         $priorities = TicketPriority::all();
         $clients = Client::orderBy('nom_societe')->get();
         
-        // ==========================================
-        // 🌟 T-filtri les utilisateurs (Exclure les clients men l'assignation)
-        // ==========================================
         $users = User::whereDoesntHave('roles', function ($query) {
             $query->where('name', 'client');
         })->get();
 
-        // 🌟 إحصائيات المواقع لكل عميل حسب تاريخ انتهاء العقد
         $clientContractStats = Client::withCount([
             'sites as total_sites',
             'sites as sites_sous_contrat' => function ($q) {
@@ -66,9 +62,6 @@ class DashboardController extends Controller
 
         $activeTab = $request->get('tab', 'en_cours');
 
-        // ==========================================
-        // 2. Tickets En Cours
-        // ==========================================
         $queryEnCours = Ticket::with(['client', 'site.client', 'priority', 'status', 'assignedTo'])
             ->whereHas('status', function($q) {
                 $q->where('est_final', 0)
@@ -96,9 +89,6 @@ class DashboardController extends Controller
         
         $ticketsEnCours = $queryEnCours->latest()->paginate(5, ['*'], 'encours_page')->withQueryString();
 
-        // ==========================================
-        // 3. Tickets Résolus
-        // ==========================================
         $queryResolus = Ticket::with(['client', 'site.client', 'priority', 'status', 'assignedTo'])
             ->whereHas('status', function($q) {
                 $q->where('nom', 'like', '%resolu%');
@@ -120,9 +110,6 @@ class DashboardController extends Controller
 
         $ticketsResolus = $queryResolus->latest()->paginate(5, ['*'], 'resolus_page')->withQueryString();
 
-        // ==========================================
-        // 4. Tickets Fermés
-        // ==========================================
         $queryFermes = Ticket::with(['client', 'site.client', 'priority', 'status', 'assignedTo'])
             ->whereHas('status', function($q) {
                 $q->where('nom', 'like', '%ferme%')
@@ -145,9 +132,6 @@ class DashboardController extends Controller
 
         $ticketsFermes = $queryFermes->latest()->paginate(5, ['*'], 'fermes_page')->withQueryString();
 
-        // ==========================================
-        // 5. Tickets Abandonnés / Annulés
-        // ==========================================
         $queryAbandons = Ticket::with(['client', 'site.client', 'priority', 'status', 'assignedTo'])
             ->whereHas('status', function($q) {
                 $q->where('nom', 'like', '%abandon%')
@@ -188,5 +172,57 @@ class DashboardController extends Controller
             'ticketsAbandons',
             'activeTab'
         ));
+    }
+
+    /**
+     * Handle AJAX requests for Dashboard KPI Modals
+     */
+    public function modalData(Request $request)
+    {
+        $type = $request->get('type');
+        $html = '';
+
+        $users = User::whereDoesntHave('roles', function ($query) {
+            $query->where('name', 'client');
+        })->get();
+
+        if ($type === 'total') {
+            $tickets = Ticket::with(['client', 'priority', 'status', 'assignedTo'])->latest()->get();
+            $html = view('dashboard.partials.modal-tickets-list', compact('tickets', 'users'))->render();
+        } 
+        elseif ($type === 'en_cours') {
+            $tickets = Ticket::with(['client', 'priority', 'status', 'assignedTo'])
+                ->whereHas('status', function($q) {
+                    $q->where('est_final', 0)
+                      ->where('nom', 'not like', '%resolu%')
+                      ->where('nom', 'not like', '%ferme%')
+                      ->where('nom', 'not like', '%cloture%')
+                      ->where('nom', 'not like', '%abandon%')
+                      ->where('nom', 'not like', '%abondonn%')
+                      ->where('nom', 'not like', '%annul%');
+                })->latest()->get();
+            $html = view('dashboard.partials.modal-tickets-list', compact('tickets', 'users'))->render();
+        } 
+        elseif ($type === 'retards_sla') {
+            $tickets = Ticket::with(['client', 'priority', 'status', 'assignedTo'])
+                ->whereHas('status', function($q) {
+                    $q->where('est_final', 0)
+                      ->where('nom', 'not like', '%resolu%')
+                      ->where('nom', 'not like', '%ferme%')
+                      ->where('nom', 'not like', '%cloture%')
+                      ->where('nom', 'not like', '%abandon%')
+                      ->where('nom', 'not like', '%abondonn%')
+                      ->where('nom', 'not like', '%annul%');
+                })
+                ->where('date_echeance_sla', '<', now())
+                ->latest()->get();
+            $html = view('dashboard.partials.modal-tickets-list', compact('tickets', 'users'))->render();
+        } 
+        elseif ($type === 'machines') {
+            $machines = Machine::with(['site.client'])->latest()->get();
+            $html = view('dashboard.partials.modal-machines-list', compact('machines'))->render();
+        }
+
+        return response($html);
     }
 }

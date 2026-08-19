@@ -114,9 +114,8 @@
                 
                 @if(isset($machine->tickets) && $machine->tickets->count() > 0)
                     <div class="table-responsive">
-                        <table class="table align-middle table-nowrap mb-0">
+                        <table class="table align-middle table-nowrap mb-0 table-hover">
                             <thead class="table-light">
-                                dr
                                 <tr>
                                     <th>N° Ticket</th>
                                     <th>Sujet</th>
@@ -125,7 +124,18 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- هنا يمكنك عرض التذاكر لاحقاً إذا ربطتيها بـ relation -->
+                                @foreach($machine->tickets as $ticket)
+                                    <tr onclick="window.location.href='{{ route('tickets.show', $ticket->id) }}';" style="cursor: pointer;" title="Cliquez pour voir le ticket">
+                                        <td><span class="fw-bold text-primary">{{ $ticket->reference ?? $ticket->id }}</span></td>
+                                        <td>{{ Str::limit($ticket->titre, 35) }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary font-size-12">
+                                                {{ $ticket->status?->nom ?? 'N/A' }}
+                                            </span>
+                                        </td>
+                                        <td>{{ $ticket->created_at ? $ticket->created_at->format('d/m/Y H:i') : '-' }}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>

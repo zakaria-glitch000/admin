@@ -35,19 +35,27 @@
         <!-- Section Commentaires -->
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title mb-4">Espace Échanges & Commentaires</h4>
+                <h4 class="card-title mb-4">Commentaires vers client</h4>
 
                 <?php $__currentLoopData = $ticket->comments; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $comment): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                    <div class="d-flex mb-3 p-3 rounded <?php echo e($comment->est_interne ? 'bg-warning-subtle' : 'bg-light'); ?>">
+                    <div class="d-flex mb-3 p-3 rounded <?php echo e($comment->est_interne ? 'bg-warning-subtle border-start border-warning border-4' : 'bg-light'); ?>">
                         <div class="flex-grow-1">
-                            <h5 class="font-size-14 m-0"><?php echo e($comment->user->nom ?? 'Utilisateur'); ?></h5>
-                            <small class="text-muted"><?php echo e($comment->created_at->format('d/m/Y H:i')); ?></small>
+                            <div class="d-flex justify-content-between">
+                                <h5 class="font-size-14 m-0">
+                                    <?php echo e($comment->user->nom ?? 'Utilisateur'); ?>
+
+                                    <?php if($comment->est_interne): ?>
+                                        <span class="badge bg-warning text-dark ms-2 font-size-11">Interne / Action</span>
+                                    <?php endif; ?>
+                                </h5>
+                                <small class="text-muted"><?php echo e($comment->created_at->format('d/m/Y H:i')); ?></small>
+                            </div>
                             <p class="mt-2 mb-0"><?php echo nl2br(e($comment->message)); ?></p>
                         </div>
                     </div>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                <!-- Form Add Comment -->
+                <!-- Form Add Public Comment -->
                 <form action="<?php echo e(route('tickets.add-comment', $ticket->id)); ?>" method="POST" enctype="multipart/form-data" class="mt-4">
                     <?php echo csrf_field(); ?>
                     <div class="mb-3">
@@ -64,10 +72,10 @@
             </div>
         </div>
 
-        <!-- Section Historique des Statuts -->
+        <!-- Section Historique des Statuts & Rapports -->
         <div class="card">
             <div class="card-body">
-                <h4 class="card-title mb-4"><i class="bx bx-history text-primary me-1"></i> Historique des Statuts</h4>
+                <h4 class="card-title mb-4"><i class="bx bx-history text-primary me-1"></i> Historique des Statuts & Rapports</h4>
 
                 <?php if(isset($ticket->histories) && $ticket->histories->count() > 0): ?>
                     <div class="timeline ps-2">
@@ -87,6 +95,21 @@
                                         <i class="bx bx-right-arrow-alt align-middle mx-1"></i> 
                                         <span class="badge bg-success"><?php echo e($history->nouveauStatus->nom ?? '-'); ?></span>
                                     </p>
+                                    
+                                    <!-- Commentaire / Rapport -->
+                                    <?php if(!empty($history->commentaire)): ?>
+                                        <div class="p-2 mt-2 rounded bg-warning-subtle border-start border-warning border-3 text-dark small">
+                                            <strong>Rapport :</strong> <?php echo nl2br(e($history->commentaire)); ?>
+
+                                        </div>
+                                    <?php endif; ?>
+
+                                    <!-- Temps de Résolution choisi par le technicien -->
+                                    <?php if(!empty($history->temps_resolution)): ?>
+                                        <div class="mt-2 text-muted small">
+                                            <i class="bx bx-time text-success me-1"></i> <strong>Temps Résolution:</strong> <span class="badge bg-light text-dark border"><?php echo e($history->temps_resolution); ?></span>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
@@ -98,21 +121,34 @@
         </div>
     </div>
 
-    <!-- Colonne Droite: Statut, SLA & Informations -->
+    <!-- Colonne Droite: Statut, Rapport, SLA & Informations -->
     <div class="col-xl-4">
-        <!-- Update Statut -->
+        <!-- Update Statut, Temps & Rapport Interne -->
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title mb-3">Changer le Statut</h4>
                 <form action="<?php echo e(route('tickets.update-status', $ticket->id)); ?>" method="POST">
                     <?php echo csrf_field(); ?>
                     <div class="mb-3">
-                        <select name="ticket_status_id" class="form-select">
+                        <label class="form-label text-muted small">Nouveau Statut</label>
+                        <select name="ticket_status_id" class="form-select" required>
                             <?php $__currentLoopData = $statuses; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $status): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                 <option value="<?php echo e($status->id); ?>" <?php echo e($ticket->ticket_status_id == $status->id ? 'selected' : ''); ?>><?php echo e($status->nom); ?></option>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </select>
                     </div>
+
+                    <!-- Zidna hna l-input dyal Temps de Résolution lli ghadi ykhtar wla ykteb l-technicien -->
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Temps de Résolution / Durée</label>
+                        <input type="text" name="temps_resolution" class="form-control" placeholder="Ex: 30 min, 1h 15m...">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Rapport / Action (Interne)</label>
+                        <textarea name="commentaire" class="form-control" rows="3" placeholder="Qu'est-ce qui a été fait ?"></textarea>
+                    </div>
+
                     <button type="submit" class="btn btn-success w-100" onclick="this.disabled=true; this.form.submit();">
                         <i class="bx bx-refresh me-1"></i> Mettre à jour le Statut
                     </button>
@@ -181,10 +217,26 @@
                     <tr>
                         <th>Assigné à:</th>
                         <td>
-                            <?php if($ticket->assignedTo): ?>
-                                <span class="badge bg-success"><?php echo e($ticket->assignedTo->nom ?? $ticket->assignedTo->name); ?></span>
+                            <?php if(auth()->user()->hasRole('Admin') || auth()->user()->email === 'admin@gmail.com' || auth()->user()->can('ticket-edit')): ?>
+                                <form action="<?php echo e(route('tickets.assign', $ticket->id)); ?>" method="POST" class="d-inline">
+                                    <?php echo csrf_field(); ?>
+                                    <?php echo method_field('PATCH'); ?>
+                                    <select name="assigned_to" class="form-select form-select-sm" onchange="this.form.submit()">
+                                        <option value="">-- Non assigné --</option>
+                                        <?php $__currentLoopData = $users; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $user): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($user->id); ?>" <?php echo e($ticket->assigned_to == $user->id ? 'selected' : ''); ?>>
+                                                <?php echo e($user->name ?? $user->nom); ?>
+
+                                            </option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    </select>
+                                </form>
                             <?php else: ?>
-                                <span class="badge bg-warning text-dark">Non assigné</span>
+                                <?php if($ticket->assignedTo): ?>
+                                    <span class="badge bg-success"><?php echo e($ticket->assignedTo->nom ?? $ticket->assignedTo->name); ?></span>
+                                <?php else: ?>
+                                    <span class="badge bg-warning text-dark">Non assigné</span>
+                                <?php endif; ?>
                             <?php endif; ?>
                         </td>
                     </tr>

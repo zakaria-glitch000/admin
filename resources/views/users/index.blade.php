@@ -32,34 +32,50 @@
     </div>
 @endif
 
-<!-- Filters -->
+<!-- Tabs للتنقل بين المستخدمين الداخليين والزبناء (نفس ستايل الـ Tickets) -->
+<ul class="nav nav-tabs nav-tabs-custom mb-3" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link {{ ($tab ?? 'internes') == 'internes' ? 'active fw-bold' : '' }}" 
+           href="{{ route('users.index', ['tab' => 'internes']) }}">
+            <i class="bx bx-user-pin me-1"></i> Utilisateurs Internes
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{ ($tab ?? '') == 'clients' ? 'active fw-bold' : '' }}" 
+           href="{{ route('users.index', ['tab' => 'clients']) }}">
+            <i class="bx bx-group me-1"></i> Utilisateurs Clients
+        </a>
+    </li>
+</ul>
+
+<!-- Filters (Automatic) -->
 <div class="row mb-3">
     <div class="col-12">
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('users.index') }}" method="GET" class="row g-3">
-                    <div class="col-md-4">
-                        <input type="text" name="search" class="form-control" placeholder="Nom, email ou téléphone..." value="{{ request('search') }}">
+                <form action="{{ route('users.index') }}" method="GET" class="row g-3" id="autoFilterForm">
+                    <!-- حقل مخفي للحفاظ على التبويب الحالي أثناء البحث أو الفلترة -->
+                    <input type="hidden" name="tab" value="{{ $tab ?? 'internes' }}">
+
+                    <div class="col-md-5">
+                        <input type="text" name="search" id="searchInput" class="form-control" placeholder="Nom, email ou téléphone..." value="{{ request('search') }}">
                     </div>
-                    <div class="col-md-3">
-                        <select name="role" class="form-select">
+                    <div class="col-md-4">
+                        <select name="role" id="roleSelect" class="form-select">
                             <option value="">Tous les rôles</option>
-                            @foreach($roles as $roleName)
-                                <option value="{{ $roleName }}" {{ request('role') == $roleName ? 'selected' : '' }}>
+                            @foreach($roles as $roleKey => $roleName)
+                                <option value="{{ $roleKey }}" {{ request('role') == $roleKey ? 'selected' : '' }}>
                                     {{ $roleName }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <select name="is_active" class="form-select">
+                        <select name="is_active" id="statusSelect" class="form-select">
                             <option value="">Tous les statuts</option>
                             <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>Actif</option>
                             <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>Inactif</option>
                         </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-secondary w-100"><i class="bx bx-filter-alt me-1"></i> Filtrer</button>
                     </div>
                 </form>
             </div>
@@ -81,37 +97,37 @@
                         <ul class="dropdown-menu p-3 shadow" style="min-width: 200px;" onclick="event.stopPropagation();">
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="user_nom" checked onchange="toggleColumn('usersTable', 'nom', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="user_nom" data-column="nom" checked>
                                     <label class="form-check-label" for="user_nom">Nom</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="user_email" checked onchange="toggleColumn('usersTable', 'email', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="user_email" data-column="email" checked>
                                     <label class="form-check-label" for="user_email">Email</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="user_telephone" checked onchange="toggleColumn('usersTable', 'telephone', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="user_telephone" data-column="telephone" checked>
                                     <label class="form-check-label" for="user_telephone">Téléphone</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="user_role" checked onchange="toggleColumn('usersTable', 'role', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="user_role" data-column="role" checked>
                                     <label class="form-check-label" for="user_role">Rôle</label>
-                                </div>
+                                }
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="user_statut" checked onchange="toggleColumn('usersTable', 'statut', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="user_statut" data-column="statut" checked>
                                     <label class="form-check-label" for="user_statut">Statut</label>
                                 </div>
                             </li>
                             <li>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="user_actions" checked onchange="toggleColumn('usersTable', 'actions', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="user_actions" data-column="actions" checked>
                                     <label class="form-check-label" for="user_actions">Actions</label>
                                 </div>
                             </li>
@@ -196,25 +212,74 @@
     </div>
 </div>
 
-<!-- JavaScript دالة التصفية والصفوف القابلة للنقر -->
+<!-- JavaScript للفلتر الأوتوماتيكي وإدارة الأعمدة -->
 <script>
-    function toggleColumn(tableId, columnName, checkbox) {
-        let isChecked = checkbox.checked;
-        let table = document.getElementById(tableId);
-        if (!table) return;
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.getElementById('autoFilterForm');
+        const searchInput = document.getElementById('searchInput');
+        const roleSelect = document.getElementById('roleSelect');
+        const statusSelect = document.getElementById('statusSelect');
 
-        let th = table.querySelector(`thead th[data-column="${columnName}"]`);
-        if (th) {
-            th.style.display = isChecked ? "" : "none";
+        let typingTimer;
+        const doneTypingInterval = 500; // الانتظار نصف ثانية بعد توقف الكتابة لتجنب إرسال طلبات كثيرة للسيرفر
+
+        // 1. الفلتر التلقائي عند تغيير الـ Selects (الرور أو الحالة)
+        roleSelect.addEventListener('change', function() {
+            form.submit();
+        });
+
+        statusSelect.addEventListener('change', function() {
+            form.submit();
+        });
+
+        // 2. الفلتر التلقائي عند الكتابة في خانة البحث (مع تأخير بسيط Debounce)
+        searchInput.addEventListener('keyup', function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(function() {
+                form.submit();
+            }, doneTypingInterval);
+        });
+
+        searchInput.addEventListener('keydown', function() {
+            clearTimeout(typingTimer);
+        });
+
+        // 3. إدارة إخفاء/إظهار الأعمدة وحفظ الحالة في LocalStorage
+        const tableId = 'usersTable';
+        const checkboxes = document.querySelectorAll('.column-checkbox');
+
+        checkboxes.forEach(checkbox => {
+            const columnName = checkbox.getAttribute('data-column');
+            const savedState = localStorage.getItem('user_col_' + columnName);
+            
+            if (savedState !== null) {
+                checkbox.checked = savedState === 'true';
+            }
+            
+            applyColumnState(tableId, columnName, checkbox.checked);
+
+            checkbox.addEventListener('change', function() {
+                localStorage.setItem('user_col_' + columnName, this.checked);
+                applyColumnState(tableId, columnName, this.checked);
+            });
+        });
+
+        function applyColumnState(tableId, columnName, isChecked) {
+            let table = document.getElementById(tableId);
+            if (!table) return;
+
+            let th = table.querySelector(`thead th[data-column="${columnName}"]`);
+            if (th) {
+                th.style.display = isChecked ? "" : "none";
+            }
+
+            let cells = table.querySelectorAll(`tbody td[data-column="${columnName}"]`);
+            cells.forEach((cell) => {
+                cell.style.display = isChecked ? "" : "none";
+            });
         }
 
-        let cells = table.querySelectorAll(`tbody td[data-column="${columnName}"]`);
-        cells.forEach((cell) => {
-            cell.style.display = isChecked ? "" : "none";
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
+        // 4. تفعيل النقر على الصفوف لعرض التفاصيل
         const clickableRows = document.querySelectorAll('.clickable-row');
         clickableRows.forEach(row => {
             row.addEventListener('click', function(e) {

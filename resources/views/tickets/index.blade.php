@@ -47,7 +47,7 @@
     </li>
 </ul>
 
-<!-- Filters (Live Auto-Submit without Date) -->
+<!-- Filters -->
 <div class="row mb-3">
     <div class="col-12">
         <div class="card">
@@ -85,7 +85,6 @@
                         </select>
                     </div>
                     
-                    <!-- Réinitialiser button -->
                     <div class="col-md-2 d-flex align-items-center">
                         @if(request('search') || request('client_id') || request('status_id') || request('priority_id'))
                             <a href="{{ route('tickets.index', ['tab' => $tab ?? 'en_cours']) }}" class="btn btn-outline-danger btn-sm w-100">
@@ -113,54 +112,66 @@
 
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bx bx-slider-alt me-1"></i> Afficher / Masquer Colonnes
+                            <i class="bx bx-slider-alt me-1"></i>
                         </button>
                         <ul class="dropdown-menu p-3 shadow" style="min-width: 200px;" onclick="event.stopPropagation();">
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="t_reference" checked onchange="toggleColumn('ticketsTable', 'reference', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="t_reference" data-column="reference" checked onchange="toggleColumn('ticketsTable', 'reference', this)">
                                     <label class="form-check-label" for="t_reference">Référence</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="t_client" checked onchange="toggleColumn('ticketsTable', 'client', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="t_date_creation" data-column="date_creation" checked onchange="toggleColumn('ticketsTable', 'date_creation', this)">
+                                    <label class="form-check-label" for="t_date_creation">Date Création</label>
+                                </div>
+                            </li>
+                            <li class="mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="t_temps_resolution" data-column="temps_resolution" checked onchange="toggleColumn('ticketsTable', 'temps_resolution', this)">
+                                    <label class="form-check-label" for="t_temps_resolution">Temps Passé</label>
+                                </div>
+                            </li>
+                            <li class="mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="t_client" data-column="client" checked onchange="toggleColumn('ticketsTable', 'client', this)">
                                     <label class="form-check-label" for="t_client">Client</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="t_titre" checked onchange="toggleColumn('ticketsTable', 'titre', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="t_titre" data-column="titre" checked onchange="toggleColumn('ticketsTable', 'titre', this)">
                                     <label class="form-check-label" for="t_titre">Titre</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="t_categorie" checked onchange="toggleColumn('ticketsTable', 'categorie', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="t_categorie" data-column="categorie" checked onchange="toggleColumn('ticketsTable', 'categorie', this)">
                                     <label class="form-check-label" for="t_categorie">Catégorie</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="t_priorite" checked onchange="toggleColumn('ticketsTable', 'priorite', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="t_priorite" data-column="priorite" checked onchange="toggleColumn('ticketsTable', 'priorite', this)">
                                     <label class="form-check-label" for="t_priorite">Priorité</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="t_statut" checked onchange="toggleColumn('ticketsTable', 'statut', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="t_statut" data-column="statut" checked onchange="toggleColumn('ticketsTable', 'statut', this)">
                                     <label class="form-check-label" for="t_statut">Statut</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="t_echeance" checked onchange="toggleColumn('ticketsTable', 'echeance', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="t_echeance" data-column="echeance" checked onchange="toggleColumn('ticketsTable', 'echeance', this)">
                                     <label class="form-check-label" for="t_echeance">Échéance SLA</label>
                                 </div>
                             </li>
                             <li>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="t_actions" checked onchange="toggleColumn('ticketsTable', 'actions', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="t_actions" data-column="actions" checked onchange="toggleColumn('ticketsTable', 'actions', this)">
                                     <label class="form-check-label" for="t_actions">Actions</label>
                                 </div>
                             </li>
@@ -173,6 +184,8 @@
                         <thead class="table-light">
                             <tr>
                                 <th data-column="reference">Référence</th>
+                                <th data-column="date_creation">Date Création</th>
+                                <th data-column="temps_resolution">Temps Passé</th>
                                 <th data-column="client">Client</th>
                                 <th data-column="titre">Titre</th>
                                 <th data-column="categorie">Catégorie</th>
@@ -199,10 +212,26 @@
 
                                 $sColor = $ticket->status?->couleur;
                                 $statusBg = isset($colorMap[$sColor]) ? $colorMap[$sColor] : 'warning';
+
+                                $dernierHistorique = $ticket->histories->sortByDesc('created_at')->first();
                             @endphp
                             <tr class="clickable-row" data-href="{{ route('tickets.show', $ticket->id) }}">
                                 <td data-column="reference">
                                     <span class="text-body fw-bold">{{ $ticket->reference }}</span>
+                                </td>
+                                <td data-column="date_creation">
+                                    <small class="text-muted">
+                                        {{ $ticket->created_at->format('d/m/Y H:i') }}
+                                    </small>
+                                </td>
+                                <td data-column="temps_resolution">
+                                    @if($dernierHistorique && !empty($dernierHistorique->temps_resolution))
+                                        <span class="badge bg-light text-dark border">
+                                            <i class="bx bx-time text-success me-1"></i> {{ $dernierHistorique->temps_resolution }}
+                                        </span>
+                                    @else
+                                        <span class="text-muted">-</span>
+                                    @endif
                                 </td>
                                 <td data-column="client">
                                     @if($ticket->client)
@@ -242,7 +271,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="8" class="text-center text-muted py-4">Aucun ticket trouvé dans cette section.</td>
+                                <td colspan="10" class="text-center text-muted py-4">Aucun ticket trouvé dans cette section.</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -263,12 +292,15 @@
     </div>
 </div>
 
-<!-- SheetJS Library لـ Export Excel -->
+<!-- SheetJS Library -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <!-- JavaScript Scripts -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // استرجاع الإعدادات المحفوظة مسبقاً من localStorage عند تحميل الصفحة
+        loadColumnPreferences();
+
         const form = document.getElementById('filterForm');
         const elements = form.querySelectorAll('select, input');
 
@@ -301,6 +333,15 @@
 
     function toggleColumn(tableId, columnName, checkbox) {
         let isChecked = checkbox.checked;
+        applyColumnVisibility(tableId, columnName, isChecked);
+
+        // حفظ حالة الأعمدة في localStorage
+        let preferences = JSON.parse(localStorage.getItem('tickets_columns_pref')) || {};
+        preferences[columnName] = isChecked;
+        localStorage.setItem('tickets_columns_pref', JSON.stringify(preferences));
+    }
+
+    function applyColumnVisibility(tableId, columnName, isChecked) {
         let table = document.getElementById(tableId);
         if (!table) return;
 
@@ -313,6 +354,19 @@
         cells.forEach((cell) => {
             cell.style.display = isChecked ? "" : "none";
         });
+    }
+
+    function loadColumnPreferences() {
+        let preferences = JSON.parse(localStorage.getItem('tickets_columns_pref'));
+        if (!preferences) return;
+
+        for (let [columnName, isChecked] of Object.entries(preferences)) {
+            let checkbox = document.querySelector(`.column-checkbox[data-column="${columnName}"]`);
+            if (checkbox) {
+                checkbox.checked = isChecked;
+                applyColumnVisibility('ticketsTable', columnName, isChecked);
+            }
+        }
     }
 
     function exportTableToExcel(tableId, filename = 'export') {
@@ -334,7 +388,6 @@
             });
         });
 
-        // جلب تاريخ اليوم وتنسيقه (DD-MM-YYYY)
         let today = new Date();
         let day = String(today.getDate()).padStart(2, '0');
         let month = String(today.getMonth() + 1).padStart(2, '0');
@@ -342,7 +395,6 @@
         let dateStr = `${day}-${month}-${year}`;
 
         let wb = XLSX.utils.table_to_book(cloneTable, {sheet: "ListeTickets"});
-        // دمج اسم الملف مع تاريخ اليوم
         XLSX.writeFile(wb, filename + '_' + dateStr + '.xlsx');
     }
 </script>

@@ -114,9 +114,8 @@
                 
                 <?php if(isset($machine->tickets) && $machine->tickets->count() > 0): ?>
                     <div class="table-responsive">
-                        <table class="table align-middle table-nowrap mb-0">
+                        <table class="table align-middle table-nowrap mb-0 table-hover">
                             <thead class="table-light">
-                                dr
                                 <tr>
                                     <th>N° Ticket</th>
                                     <th>Sujet</th>
@@ -125,7 +124,19 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- هنا يمكنك عرض التذاكر لاحقاً إذا ربطتيها بـ relation -->
+                                <?php $__currentLoopData = $machine->tickets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ticket): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <tr onclick="window.location.href='<?php echo e(route('tickets.show', $ticket->id)); ?>';" style="cursor: pointer;" title="Cliquez pour voir le ticket">
+                                        <td><span class="fw-bold text-primary"><?php echo e($ticket->reference ?? $ticket->id); ?></span></td>
+                                        <td><?php echo e(Str::limit($ticket->titre, 35)); ?></td>
+                                        <td>
+                                            <span class="badge bg-secondary font-size-12">
+                                                <?php echo e($ticket->status?->nom ?? 'N/A'); ?>
+
+                                            </span>
+                                        </td>
+                                        <td><?php echo e($ticket->created_at ? $ticket->created_at->format('d/m/Y H:i') : '-'); ?></td>
+                                    </tr>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </tbody>
                         </table>
                     </div>

@@ -73,7 +73,7 @@
                             <tr>
                                 <th>Type</th>
                                 <th>Client</th>
-                                <th>Nom / Référence</th>
+                                <th>Nun Doc</th>
                                 <th>Date d'ajout</th>
                                 <th class="text-center" data-exclude="true">Action</th>
                             </tr>

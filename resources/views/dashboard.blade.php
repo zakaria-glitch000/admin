@@ -28,10 +28,11 @@
     </div>
 </div>
 
-<!-- KPI Cards -->
+<!-- KPI Cards (Clickable to open Modals) -->
 <div class="row">
+    <!-- 1. Total Tickets -->
     <div class="col-md-3">
-        <div class="card mini-stats-wid">
+        <div class="card mini-stats-wid shadow-sm" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalTotalTickets" onclick="loadModalData('total', 'contentTotalTickets')">
             <div class="card-body">
                 <div class="d-flex">
                     <div class="flex-grow-1">
@@ -48,8 +49,9 @@
         </div>
     </div>
 
+    <!-- 2. Tickets En Cours -->
     <div class="col-md-3">
-        <div class="card mini-stats-wid">
+        <div class="card mini-stats-wid shadow-sm" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalTicketsOuverts" onclick="loadModalData('en_cours', 'contentTicketsOuverts')">
             <div class="card-body">
                 <div class="d-flex">
                     <div class="flex-grow-1">
@@ -66,8 +68,9 @@
         </div>
     </div>
 
+    <!-- 3. Retards SLA -->
     <div class="col-md-3">
-        <div class="card mini-stats-wid">
+        <div class="card mini-stats-wid shadow-sm" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalRetardsSla" onclick="loadModalData('retards_sla', 'contentRetardsSla')">
             <div class="card-body">
                 <div class="d-flex">
                     <div class="flex-grow-1">
@@ -84,8 +87,9 @@
         </div>
     </div>
 
+    <!-- 4. Parc Machines -->
     <div class="col-md-3">
-        <div class="card mini-stats-wid">
+        <div class="card mini-stats-wid shadow-sm" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalParcMachines" onclick="loadModalData('machines', 'contentParcMachines')">
             <div class="card-body">
                 <div class="d-flex">
                     <div class="flex-grow-1">
@@ -118,12 +122,12 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fw-bold text-success {{ $activeTab == 'resolus' ? 'active' : '' }}" id="resolus-tab" data-bs-toggle="tab" data-bs-target="#resolus-pane" type="button" role="tab">
-                            <i class="bx bx-check-circle me-1"></i> Résolus ({{ $ticketsResolus->total() }})
+                            <i class="bx bx-check-circle me-1"></i> Traité ({{ $ticketsResolus->total() }})
                         </button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link fw-bold text-danger {{ $activeTab == 'abandons' ? 'active' : '' }}" id="abandons-tab" data-bs-toggle="tab" data-bs-target="#abandons-pane" type="button" role="tab">
-                            <i class="bx bx-x-circle me-1"></i> Abandonnés / Annulés ({{ $ticketsAbandons->total() }})
+                            <i class="bx bx-x-circle me-1"></i> Annulés ({{ $ticketsAbandons->total() }})
                         </button>
                     </li>
                 </ul>
@@ -164,7 +168,6 @@
                                             </td>
                                             <td><span class="badge bg-soft-info text-info font-size-12">{{ $ticket->priority?->nom ?? 'N/A' }}</span></td>
                                             
-                                            <!-- Assignation -->
                                             <td class="text-center">
                                                 @if(auth()->user()->hasRole('Admin') || auth()->user()->email === 'admin@gmail.com')
                                                     <form action="{{ route('tickets.assign', $ticket->id) }}" method="POST" class="d-inline">
@@ -238,7 +241,6 @@
                                             </td>
                                             <td><span class="badge bg-soft-info text-info font-size-12">{{ $ticket->priority?->nom ?? 'N/A' }}</span></td>
                                             
-                                            <!-- Assignation -->
                                             <td class="text-center">
                                                 @if(auth()->user()->hasRole('Admin') || auth()->user()->email === 'admin@gmail.com')
                                                     <form action="{{ route('tickets.assign', $ticket->id) }}" method="POST" class="d-inline">
@@ -306,7 +308,6 @@
                                             </td>
                                             <td><span class="badge bg-soft-info text-info font-size-12">{{ $ticket->priority?->nom ?? 'N/A' }}</span></td>
                                             
-                                            <!-- Assignation -->
                                             <td class="text-center">
                                                 @if(auth()->user()->hasRole('Admin') || auth()->user()->email === 'admin@gmail.com')
                                                     <form action="{{ route('tickets.assign', $ticket->id) }}" method="POST" class="d-inline">
@@ -425,5 +426,87 @@
         </div>
     </div>
 </div>
+
+<!-- ========================================== -->
+<!-- MODALS DEFINITIONS FOR KPI CARDS -->
+<!-- ========================================== -->
+<!-- Modal 1: Total Tickets -->
+<div class="modal fade" id="modalTotalTickets" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="bx bx-copy-alt me-1"></i> Tous les Tickets</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="contentTotalTickets">
+                <div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Tickets En Cours -->
+<div class="modal fade" id="modalTicketsOuverts" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title"><i class="bx bx-hourglass me-1"></i> Tickets En Cours</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="contentTicketsOuverts">
+                <div class="text-center py-4"><div class="spinner-border text-warning" role="status"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3: Retards SLA -->
+<div class="modal fade" id="modalRetardsSla" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bx bx-error me-1"></i> Retards SLA</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="contentRetardsSla">
+                <div class="text-center py-4"><div class="spinner-border text-danger" role="status"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 4: Parc Machines -->
+<div class="modal fade" id="modalParcMachines" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bx bx-desktop me-1"></i> Parc Machines</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="contentParcMachines">
+                <div class="text-center py-4"><div class="spinner-border text-success" role="status"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- سكريبت الجافاسكريبت محطوط مباشرة في الأخير باش يتأكد البراوزر بلي الدالة معروفة -->
+<script>
+function loadModalData(type, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>';
+
+    fetch(`{{ route('dashboard.modal-data') }}?type=${type}`)
+        .then(response => response.text())
+        .then(html => {
+            container.innerHTML = html;
+        })
+        .catch(error => {
+            container.innerHTML = '<p class="text-danger text-center">Erreur lors du chargement des données.</p>';
+        });
+}
+</script>
 
 @endsection

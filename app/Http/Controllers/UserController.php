@@ -15,20 +15,15 @@ use Illuminate\Http\RedirectResponse;
 
 class UserController extends Controller
 {
-    /**
-     * حماية الكونترولر: السماح للأدمن، أو إيميل الأدمن، أو من يمتلك الصلاحيات المطلوبة
-     */
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
             $user = Auth::user();
             
-            // واش هو Admin ولا إيميل الأدمن؟ دوز مباشرة
             if ($user->hasRole('Admin') || $user->email === 'admin@gmail.com') {
                 return $next($request);
             }
 
-            // والا، نشيكيو على حسب الـ Route اللي مديور
             $routeName = $request->route()->getActionMethod();
 
             if (in_array($routeName, ['index', 'show']) && !$user->can('user-list')) {
@@ -48,14 +43,26 @@ class UserController extends Controller
         });
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): View
     {
+        // تحديد التبويب الحالي (افتراضياً internes)
+        $tab = $request->get('tab', 'internes');
+
         $query = User::with('roles');
 
-        // 1. فلتر البحث بالاسم أو الإيميل أو الهاتف
+        // التصفية حسب التبويب
+        if ($tab === 'clients') {
+            $query->whereHas('roles', function($q) {
+                $q->where('name', 'Client');
+            });
+            $roles = ['Client' => 'Client'];
+        } else {
+            $query->whereDoesntHave('roles', function($q) {
+                $q->where('name', 'Client');
+            });
+            $roles = Role::where('name', '!=', 'Client')->pluck('name', 'name')->all();
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -65,39 +72,27 @@ class UserController extends Controller
             });
         }
 
-        // 2. فلتر حسب الدور (Role)
         if ($request->filled('role')) {
             $query->role($request->role);
         }
 
-        // 3. فلتر حسب الحالة (نشط / غير نشط)
         if ($request->filled('is_active')) {
             $query->where('is_active', $request->is_active);
         }
 
-        // استخدام withQueryString للحفاظ على الفلاتر أثناء التنقل بين صفحات الباجينيشن
         $data = $query->orderBy('id', 'DESC')->paginate(10)->withQueryString();
         $users = $data; 
 
-        $roles = Role::pluck('name', 'name')->all();
-
-        return view('users.index', compact('data', 'users', 'roles'))
+        return view('users.index', compact('data', 'users', 'roles', 'tab'))
             ->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(): View
     {
         $roles = Role::pluck('name', 'name')->all();
-
         return view('users.create', compact('roles'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
@@ -115,23 +110,19 @@ class UserController extends Controller
         $user = User::create($input);
         $user->assignRole($request->input('roles'));
 
-        return redirect()->route('users.index')
+        // إعادة التوجيه للتبويب المناسب حسب الدور المختار
+        $tab = in_array('Client', (array)$request->input('roles')) ? 'clients' : 'internes';
+
+        return redirect()->route('users.index', ['tab' => $tab])
                         ->with('success', 'Utilisateur créé avec succès.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show($id): View
     {
         $user = User::with('roles')->findOrFail($id);
-
         return view('users.show', compact('user'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($id): View
     {
         $user = User::findOrFail($id);
@@ -141,9 +132,6 @@ class UserController extends Controller
         return view('users.edit', compact('user', 'roles', 'userRole'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, $id): RedirectResponse
     {
         $this->validate($request, [
@@ -170,18 +158,20 @@ class UserController extends Controller
         DB::table('model_has_roles')->where('model_id', $id)->delete();
         $user->assignRole($request->input('roles'));
 
-        return redirect()->route('users.index')
+        $tab = $user->hasRole('Client') ? 'clients' : 'internes';
+
+        return redirect()->route('users.index', ['tab' => $tab])
                         ->with('success', 'Utilisateur mis à jour avec succès.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy($id): RedirectResponse
     {
-        User::findOrFail($id)->delete();
+        $user = User::findOrFail($id);
+        $tab = $user->hasRole('Client') ? 'clients' : 'internes';
+        
+        $user->delete();
 
-        return redirect()->route('users.index')
+        return redirect()->route('users.index', ['tab' => $tab])
                         ->with('success', 'Utilisateur supprimé avec succès.');
     }
 }

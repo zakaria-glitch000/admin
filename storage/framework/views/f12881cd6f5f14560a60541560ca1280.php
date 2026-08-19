@@ -92,54 +92,54 @@
 
                     <div class="dropdown">
                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bx bx-slider-alt me-1"></i> Afficher / Masquer Colonnes
+                            <i class="bx bx-slider-alt me-1"></i>
                         </button>
                         <ul class="dropdown-menu p-3 shadow" style="min-width: 200px;" onclick="event.stopPropagation();">
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="mach_sn" checked onchange="toggleColumn('machinesTable', 'sn', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="mach_sn" data-column="sn" checked onchange="toggleColumn('machinesTable', 'sn', this)">
                                     <label class="form-check-label" for="mach_sn">S/N (N° Série)</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="mach_marque" checked onchange="toggleColumn('machinesTable', 'marque', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="mach_marque" data-column="marque" checked onchange="toggleColumn('machinesTable', 'marque', this)">
                                     <label class="form-check-label" for="mach_marque">Marque & Modèle</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="mach_categorie" checked onchange="toggleColumn('machinesTable', 'categorie', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="mach_categorie" data-column="categorie" checked onchange="toggleColumn('machinesTable', 'categorie', this)">
                                     <label class="form-check-label" for="mach_categorie">Catégorie</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="mach_installation" checked onchange="toggleColumn('machinesTable', 'installation', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="mach_installation" data-column="installation" checked onchange="toggleColumn('machinesTable', 'installation', this)">
                                     <label class="form-check-label" for="mach_installation">Date d'installation</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="mach_client" checked onchange="toggleColumn('machinesTable', 'client', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="mach_client" data-column="client" checked onchange="toggleColumn('machinesTable', 'client', this)">
                                     <label class="form-check-label" for="mach_client">Client / Site</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="mach_garantie" checked onchange="toggleColumn('machinesTable', 'garantie', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="mach_garantie" data-column="garantie" checked onchange="toggleColumn('machinesTable', 'garantie', this)">
                                     <label class="form-check-label" for="mach_garantie">Garantie</label>
                                 </div>
                             </li>
                             <li class="mb-2">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="mach_statut" checked onchange="toggleColumn('machinesTable', 'statut', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="mach_statut" data-column="statut" checked onchange="toggleColumn('machinesTable', 'statut', this)">
                                     <label class="form-check-label" for="mach_statut">Statut</label>
                                 </div>
                             </li>
                             <li>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="mach_actions" checked onchange="toggleColumn('machinesTable', 'actions', this)">
+                                    <input class="form-check-input column-checkbox" type="checkbox" id="mach_actions" data-column="actions" checked onchange="toggleColumn('machinesTable', 'actions', this)">
                                     <label class="form-check-label" for="mach_actions">Actions</label>
                                 </div>
                             </li>
@@ -250,6 +250,9 @@
 <!-- JavaScript الدوال -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // استرجاع الإعدادات المحفوظة مسبقاً من localStorage عند تحميل الصفحة
+        loadColumnPreferences();
+
         // تفعيل النقر على الـ Ligne كاملة
         const clickableRows = document.querySelectorAll('.clickable-row');
         clickableRows.forEach(row => {
@@ -266,39 +269,57 @@
         const selects = form.querySelectorAll('select');
         const searchInput = document.getElementById('filterSearch');
 
-        // بالنسبة للـ Selects: فاش يبدل شي خيار يدير Submit بوحده
         selects.forEach(select => {
             select.addEventListener('change', function() {
                 form.submit();
             });
         });
 
-        // بالنسبة للـ Input ديال البحث: درنا ليها Debounce باش متصيفطش Request فكل حرف (كتسنى نص ثانية من بعد ما يسالي كاتب)
         let timeout = null;
         searchInput.addEventListener('input', function() {
             clearTimeout(timeout);
             timeout = setTimeout(function() {
                 form.submit();
-            }, 500); // 500 milliseconde
+            }, 500);
         });
     });
 
     function toggleColumn(tableId, columnName, checkbox) {
         let isChecked = checkbox.checked;
+        applyColumnVisibility(tableId, columnName, isChecked);
+
+        // حفظ حالة الأعمدة في localStorage
+        let preferences = JSON.parse(localStorage.getItem('machines_columns_pref')) || {};
+        preferences[columnName] = isChecked;
+        localStorage.setItem('machines_columns_pref', JSON.stringify(preferences));
+    }
+
+    function applyColumnVisibility(tableId, columnName, isChecked) {
         let table = document.getElementById(tableId);
         if (!table) return;
 
-        // إخفاء/إظهار الـ Header
         let th = table.querySelector(`thead th[data-column="${columnName}"]`);
         if (th) {
             th.style.display = isChecked ? "" : "none";
         }
 
-        // إخفاء/إظهار الـ Cells (td)
         let cells = table.querySelectorAll(`tbody td[data-column="${columnName}"]`);
         cells.forEach((cell) => {
             cell.style.display = isChecked ? "" : "none";
         });
+    }
+
+    function loadColumnPreferences() {
+        let preferences = JSON.parse(localStorage.getItem('machines_columns_pref'));
+        if (!preferences) return;
+
+        for (let [columnName, isChecked] of Object.entries(preferences)) {
+            let checkbox = document.querySelector(`.column-checkbox[data-column="${columnName}"]`);
+            if (checkbox) {
+                checkbox.checked = isChecked;
+                applyColumnVisibility('machinesTable', columnName, isChecked);
+            }
+        }
     }
 
     function exportTableToExcel(tableId, filename = 'export') {
@@ -320,7 +341,6 @@
             });
         });
 
-        // جلب تاريخ اليوم وتنسيقه (DD-MM-YYYY)
         let today = new Date();
         let day = String(today.getDate()).padStart(2, '0');
         let month = String(today.getMonth() + 1).padStart(2, '0');
@@ -328,7 +348,6 @@
         let dateStr = `${day}-${month}-${year}`;
 
         let wb = XLSX.utils.table_to_book(cloneTable, {sheet: "ParcMachines"});
-        // دمج اسم الملف مع تاريخ اليوم
         XLSX.writeFile(wb, filename + '_' + dateStr + '.xlsx');
     }
 </script>

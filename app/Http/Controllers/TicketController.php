@@ -41,7 +41,8 @@ class TicketController extends Controller
 
     public function index(Request $request)
     {
-        $query = Ticket::with(['client', 'site.client', 'category', 'priority', 'status', 'assignedTo']);
+        // Zidna 'histories' hna f with() bach njibo l-waqt dyal l-technicien f l-index l-tableau
+        $query = Ticket::with(['client', 'site.client', 'category', 'priority', 'status', 'assignedTo', 'histories']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -138,7 +139,7 @@ class TicketController extends Controller
             $reference = sprintf('TCK-%s-%06d', $annee, $countThisYear);
 
             $statutInitial = TicketStatus::where('nom', 'like', '%en cours%')->first() 
-                          ?? TicketStatus::orderBy('ordre')->first();
+                      ?? TicketStatus::orderBy('ordre')->first();
 
             $priorite = TicketPriority::findOrFail($validated['ticket_priority_id']);
             $dateEcheanceSla = Carbon::now()->addHours($priorite->delai_sla_heures);
@@ -228,7 +229,9 @@ class TicketController extends Controller
     public function updateStatus(Request $request, Ticket $ticket)
     {
         $validated = $request->validate([
-            'ticket_status_id' => 'required|exists:ticket_statuses,id',
+            'ticket_status_id'  => 'required|exists:ticket_statuses,id',
+            'commentaire'       => 'nullable|string',
+            'temps_resolution'  => 'nullable|string', 
         ]);
 
         try {
@@ -249,6 +252,8 @@ class TicketController extends Controller
                     'ancien_status_id'  => $ancienStatusId,
                     'nouveau_status_id' => $nouveauStatus->id,
                     'user_id'           => Auth::id(),
+                    'commentaire'       => $validated['commentaire'] ?? null,
+                    'temps_resolution'  => $validated['temps_resolution'] ?? null,
                     'created_at'        => now(),
                 ]);
             });
@@ -259,7 +264,7 @@ class TicketController extends Controller
             throw $e;
         }
 
-        return back()->with('success', 'Statut du ticket mis à jour.');
+        return back()->with('success', 'Statut et rapport mis à jour avec succès.');
     }
 
     public function addComment(Request $request, Ticket $ticket)

@@ -21,8 +21,8 @@ class DatabaseSeeder extends Seeder
         $statuses = [
             ['id' => 1, 'nom' => 'Nouveau', 'couleur' => 'Jaune', 'ordre' => 1, 'est_final' => false],
             ['id' => 2, 'nom' => 'En cours', 'couleur' => 'Orange', 'ordre' => 2, 'est_final' => false],
-            ['id' => 3, 'nom' => 'Resolue', 'couleur' => 'Vert', 'ordre' => 3, 'est_final' => true],
-            ['id' => 4, 'nom' => 'Abondonnee', 'couleur' => 'Rouge', 'ordre' => 4, 'est_final' => true],
+            ['id' => 3, 'nom' => 'Traité', 'couleur' => 'Vert', 'ordre' => 3, 'est_final' => true],
+            ['id' => 4, 'nom' => 'Abondonneé', 'couleur' => 'Rouge', 'ordre' => 4, 'est_final' => true],
         ];
         DB::table('ticket_statuses')->insertOrIgnore($statuses);
 
