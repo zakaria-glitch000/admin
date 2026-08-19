@@ -24,7 +24,7 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Client & Site <span class="text-danger">*</span></label>
+                            <label class="form-label">Client & Site</label>
                             <select name="client_site_id" class="form-select <?php $__errorArgs = ['client_site_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -32,7 +32,7 @@ if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" required>
+unset($__errorArgs, $__bag); ?>">
                                 <option value="">-- Choisir le site --</option>
                                 <?php $__currentLoopData = $sites; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $site): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <?php if($site->client): ?>
@@ -55,7 +55,7 @@ unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Catégorie de Machine <span class="text-danger">*</span></label>
+                            <label class="form-label">Catégorie de Machine</label>
                             <select name="machine_category_id" class="form-select <?php $__errorArgs = ['machine_category_id'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -63,7 +63,7 @@ if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" required>
+unset($__errorArgs, $__bag); ?>">
                                 <option value="">-- Choisir la catégorie --</option>
                                 <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $cat): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <option value="<?php echo e($cat->id); ?>" <?php echo e(old('machine_category_id') == $cat->id ? 'selected' : ''); ?>>
@@ -87,7 +87,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">S/N (N° de Série) <span class="text-danger">*</span></label>
+                            <label class="form-label">S/N (N° de Série)</label>
                             <input type="text" name="numero_serie" class="form-control <?php $__errorArgs = ['numero_serie'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -95,7 +95,7 @@ if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" value="<?php echo e(old('numero_serie')); ?>" required>
+unset($__errorArgs, $__bag); ?>" value="<?php echo e(old('numero_serie')); ?>">
                             <?php $__errorArgs = ['numero_serie'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -109,7 +109,7 @@ unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Marque <span class="text-danger">*</span></label>
+                            <label class="form-label">Marque</label>
                             <input type="text" name="marque" class="form-control <?php $__errorArgs = ['marque'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -117,7 +117,7 @@ if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" value="<?php echo e(old('marque')); ?>" required>
+unset($__errorArgs, $__bag); ?>" value="<?php echo e(old('marque')); ?>">
                             <?php $__errorArgs = ['marque'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -133,7 +133,7 @@ unset($__errorArgs, $__bag); ?>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Modèle <span class="text-danger">*</span></label>
+                            <label class="form-label">Modèle</label>
                             <input type="text" name="modele" class="form-control <?php $__errorArgs = ['modele'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -141,7 +141,7 @@ if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" value="<?php echo e(old('modele')); ?>" required>
+unset($__errorArgs, $__bag); ?>" value="<?php echo e(old('modele')); ?>">
                             <?php $__errorArgs = ['modele'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -203,7 +203,7 @@ unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Statut <span class="text-danger">*</span></label>
+                            <label class="form-label">Statut</label>
                             <select name="statut" class="form-select <?php $__errorArgs = ['statut'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -211,8 +211,9 @@ if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" required>
-                                <option value="actif" <?php echo e(old('statut', 'actif') == 'actif' ? 'selected' : ''); ?>>Actif</option>
+unset($__errorArgs, $__bag); ?>">
+                                <option value="">-- Choisir le statut --</option>
+                                <option value="actif" <?php echo e(old('statut') == 'actif' ? 'selected' : ''); ?>>Actif</option>
                                 <option value="hors_service" <?php echo e(old('statut') == 'hors_service' ? 'selected' : ''); ?>>Hors Service</option>
                                 <option value="remplace" <?php echo e(old('statut') == 'remplace' ? 'selected' : ''); ?>>Remplacé</option>
                             </select>
