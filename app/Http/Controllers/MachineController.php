@@ -73,14 +73,14 @@ class MachineController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'client_site_id'      => 'required|exists:client_sites,id',
-            'machine_category_id' => 'required|exists:machine_categories,id',
-            'marque'              => 'required|string|max:100',
-            'modele'              => 'required|string|max:100',
-            'numero_serie'        => 'required|string|unique:machines,numero_serie',
+            'client_site_id'      => 'nullable|exists:client_sites,id',
+            'machine_category_id' => 'nullable|exists:machine_categories,id',
+            'marque'              => 'nullable|string|max:100',
+            'modele'              => 'nullable|string|max:100',
+            'numero_serie'        => 'nullable|string|unique:machines,numero_serie',
             'date_installation'   => 'nullable|date',
             'date_fin_garantie'   => 'nullable|date',
-            'statut'              => 'required|in:actif,hors_service,remplace',
+            'statut'              => 'nullable|in:actif,hors_service,remplace',
         ]);
 
         Machine::create($validated);
@@ -104,14 +104,14 @@ class MachineController extends Controller
     public function update(Request $request, Machine $machine)
     {
         $validated = $request->validate([
-            'client_site_id'      => 'required|exists:client_sites,id',
-            'machine_category_id' => 'required|exists:machine_categories,id',
-            'marque'              => 'required|string|max:100',
-            'modele'              => 'required|string|max:100',
-            'numero_serie'        => 'required|string|unique:machines,numero_serie,' . $machine->id,
+            'client_site_id'      => 'nullable|exists:client_sites,id',
+            'machine_category_id' => 'nullable|exists:machine_categories,id',
+            'marque'              => 'nullable|string|max:100',
+            'modele'              => 'nullable|string|max:100',
+            'numero_serie'        => 'nullable|string|unique:machines,numero_serie,' . $machine->id,
             'date_installation'   => 'nullable|date',
             'date_fin_garantie'   => 'nullable|date',
-            'statut'              => 'required|in:actif,hors_service,remplace',
+            'statut'              => 'nullable|in:actif,hors_service,remplace',
         ]);
 
         $machine->update($validated);

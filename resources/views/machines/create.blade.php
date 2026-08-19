@@ -24,8 +24,8 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Client & Site <span class="text-danger">*</span></label>
-                            <select name="client_site_id" class="form-select @error('client_site_id') is-invalid @enderror" required>
+                            <label class="form-label">Client & Site</label>
+                            <select name="client_site_id" class="form-select @error('client_site_id') is-invalid @enderror">
                                 <option value="">-- Choisir le site --</option>
                                 @foreach($sites as $site)
                                     @if($site->client)
@@ -41,8 +41,8 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Catégorie de Machine <span class="text-danger">*</span></label>
-                            <select name="machine_category_id" class="form-select @error('machine_category_id') is-invalid @enderror" required>
+                            <label class="form-label">Catégorie de Machine</label>
+                            <select name="machine_category_id" class="form-select @error('machine_category_id') is-invalid @enderror">
                                 <option value="">-- Choisir la catégorie --</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}" {{ old('machine_category_id') == $cat->id ? 'selected' : '' }}>
@@ -58,16 +58,16 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">S/N (N° de Série) <span class="text-danger">*</span></label>
-                            <input type="text" name="numero_serie" class="form-control @error('numero_serie') is-invalid @enderror" value="{{ old('numero_serie') }}" required>
+                            <label class="form-label">S/N (N° de Série)</label>
+                            <input type="text" name="numero_serie" class="form-control @error('numero_serie') is-invalid @enderror" value="{{ old('numero_serie') }}">
                             @error('numero_serie')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Marque <span class="text-danger">*</span></label>
-                            <input type="text" name="marque" class="form-control @error('marque') is-invalid @enderror" value="{{ old('marque') }}" required>
+                            <label class="form-label">Marque</label>
+                            <input type="text" name="marque" class="form-control @error('marque') is-invalid @enderror" value="{{ old('marque') }}">
                             @error('marque')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -76,8 +76,8 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Modèle <span class="text-danger">*</span></label>
-                            <input type="text" name="modele" class="form-control @error('modele') is-invalid @enderror" value="{{ old('modele') }}" required>
+                            <label class="form-label">Modèle</label>
+                            <input type="text" name="modele" class="form-control @error('modele') is-invalid @enderror" value="{{ old('modele') }}">
                             @error('modele')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -104,9 +104,10 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Statut <span class="text-danger">*</span></label>
-                            <select name="statut" class="form-select @error('statut') is-invalid @enderror" required>
-                                <option value="actif" {{ old('statut', 'actif') == 'actif' ? 'selected' : '' }}>Actif</option>
+                            <label class="form-label">Statut</label>
+                            <select name="statut" class="form-select @error('statut') is-invalid @enderror">
+                                <option value="">-- Choisir le statut --</option>
+                                <option value="actif" {{ old('statut') == 'actif' ? 'selected' : '' }}>Actif</option>
                                 <option value="hors_service" {{ old('statut') == 'hors_service' ? 'selected' : '' }}>Hors Service</option>
                                 <option value="remplace" {{ old('statut') == 'remplace' ? 'selected' : '' }}>Remplacé</option>
                             </select>
