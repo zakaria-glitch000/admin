@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('role_id')->nullable()->constrained('roles')->nullOnDelete();
+            $table->unsignedBigInteger('role_id')->nullable(); // تم تعديلها لتجنب مشاكل Foreign Key المسبقة
             $table->string('nom');
             $table->string('email')->unique();
             $table->string('telephone')->nullable();
